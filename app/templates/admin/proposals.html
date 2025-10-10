@@ -1,0 +1,94 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mt-4">Propostas Criadas</h2>
+        <p class="lead text-muted">Gerencie todas as propostas do sistema.</p>
+    </div>
+    <a href="{{ url_for('main.clients') }}" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>Criar Nova Proposta
+    </a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Título da Proposta</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Data</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end">Valor</th>
+                        <th scope="col" class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proposal in proposals %}
+                    <tr>
+                        <td><strong>{{ proposal.title }}</strong></td>
+                        <td>{{ proposal.client.name }}</td>
+                        <td>{{ proposal.creation_date.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            {% set status_colors = {
+                                'Ativa': 'bg-success',
+                                'Enviada': 'bg-primary',
+                                'Inativa': 'bg-secondary',
+                                'Rascunho': 'bg-warning'
+                            } %}
+                            {% set current_color = status_colors.get(proposal.status, 'bg-light text-dark') %}
+                        
+                            <form action="{{ url_for('main.update_proposal_status', proposal_id=proposal.id) }}" method="POST" class="status-form">
+                                <select name="new_status" class="form-select form-select-sm badge {{ current_color }}" onchange="this.form.submit()">
+                                    {% for status in ['Ativa', 'Enviada', 'Inativa'] %}
+                                        <option value="{{ status }}" {% if proposal.status == status %}selected{% endif %}>
+                                            {{ status }}
+                                        </option>
+                                    {% endfor %}
+                                    {% if proposal.status == 'Rascunho' %}
+                                        <option value="Rascunho" selected>Rascunho</option>
+                                    {% endif %}
+                                </select>
+                            </form>
+                        </td>
+                        <td class="text-end">
+                            R$ {{ "{:,.2f}".format(proposal.total_investment or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('main.proposal_detail', proposal_id=proposal.id) }}" class="btn btn-sm btn-outline-secondary" title="Ver Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        
+                            <form action="{{ url_for('main.delete_proposal', proposal_id=proposal.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta proposta? Ela será removida permanentemente.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir Proposta">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted p-4">
+                            Nenhuma proposta encontrada. <a href="{{ url_for('main.clients') }}">Crie a primeira!</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mt-4">Dashboard</h1>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="kpi-card border-left-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Propostas (Mês)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-file-alt fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="kpi-card border-left-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Faturamento (Mês)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">R$ 45.700,00</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-dollar-sign fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="kpi-card border-left-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Projetos Fechados</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">2</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-check-circle fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="kpi-card border-left-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Em Negociação</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">6</div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-comments-dollar fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm h-100 d-flex flex-column">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Volume de Propostas (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body chart-container">
+                <canvas id="proposalsLineChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm h-100 d-flex flex-column">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Status das Propostas</h6>
+            </div>
+            <div class="card-body chart-container d-flex align-items-center justify-content-center">
+                <canvas id="statusDoughnutChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Últimas Propostas Criadas</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <tbody>
+                            <tr>
+                                <td><strong>Proposta Residencial Silva</strong></td>
+                                <td>João da Silva</td>
+                                <td>R$ 25.000,00</td>
+                                <td><span class="badge bg-success">Aprovada</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Projeto Comercial Padaria Pão Quente</strong></td>
+                                <td>Maria Oliveira</td>
+                                <td>R$ 78.500,00</td>
+                                <td><span class="badge bg-warning">Enviada</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sistema Fotovoltaico Fazenda Boa Vista</strong></td>
+                                <td>Carlos Pereira</td>
+                                <td>R$ 150.000,00</td>
+                                <td><span class="badge bg-primary">Ativa</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyper Solar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/site_style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+<body>
+
+    <header class="hero">
+        <div class="container">
+            <img src="static/img/logo.png" alt="Logo SolarEnergy" class="logo">
+            <a href="#simulador" class="btn btn-primary">Simule sua Economia Agora</a>
+            <h1>Descubra o quanto você pode <br><span class="highlight">economizar com Energia Solar</span></h1>
+            <p> Simulação 100% gratuita. Leva menos de 1 minuto.</p>
+            <div class="social-proof">
+                <div class="client-photos">
+                    <img src="static/img/p1.png" alt="Cliente 1">
+                    <img src="static/img/p2.png" alt="Cliente 2">
+                    <img src="static/img/p3.png" alt="Cliente 3">
+                    <img src="static/img/p4.png" alt="Cliente 4">
+                </div>
+                <div class="rating">
+                    <strong>4.9/5</strong>
+                    <div class="stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="simulador" class="simulator-section">
+            <div class="container">
+                <div class="simulator-container">
+                    <div class="progress-bar">
+                        <div class="step-progress active" data-step="1">Simulação</div>
+                        <div class="step-progress" data-step="2">Dados</div>
+                        <div class="step-progress" data-step="3">Resultado</div>
+                    </div>
+                    <form id="solar-simulator-form">
+                        <div class="step active" data-step="1">
+                            <h2>Qual o seu gasto médio mensal com energia?</h2>
+                            <div class="input-group">
+                                <label for="gasto-luz">Valor em Reais (R$)</label>
+                                <input type="number" id="gasto-luz" placeholder="Ex: 350" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Tipo do Imóvel</label>
+                                <div class="option-cards" id="tipo-sistema-cards">
+                                    <div class="option-card active" data-value="residencial"><i class="fas fa-home"></i><span>Residencial</span></div>
+                                    <div class="option-card" data-value="comercial"><i class="fas fa-building"></i><span>Comercial</span></div>
+                                    <div class="option-card" data-value="industrial"><i class="fas fa-industry"></i><span>Industrial</span></div>
+                                    <div class="option-card" data-value="rural"><i class="fas fa-tractor"></i><span>Rural</span></div>
+                                </div>
+                                <input type="hidden" id="tipo-sistema" value="residencial" required>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-next">
+                                <span>Continuar</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="step" data-step="2">
+                            <h2>Estamos quase lá! Preencha seus dados.</h2>
+                            <div class="input-group"><label for="nome">Nome Completo</label><input type="text" id="nome" placeholder="Seu nome" required></div>
+                            <div class="input-group"><label for="telefone">Telefone (WhatsApp)</label><input type="tel" id="telefone" placeholder="(00) 90000-0000" required></div>
+                            <div class="input-group"><label for="email">Seu melhor E-mail</label><input type="email" id="email" placeholder="seuemail@exemplo.com" required></div>
+                            <div class="input-group-row">
+                                <div class="input-group"><label for="estado">Estado</label><input type="text" id="estado" placeholder="Ex: SP" required></div>
+                                <div class="input-group"><label for="cidade">Cidade</label><input type="text" id="cidade" placeholder="Ex: São Paulo" required></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-next">
+                                <span>Ver meu Resultado</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="step" data-step="3">
+                            <h2>Parabéns, <span id="resultado-nome"></span>! Esta é sua simulação detalhada:</h2>
+                            <div id="resultado-simulacao" class="results-grid"></div>
+                            <div class="charts-container">
+                                <div class="chart-box"><h4>Economia Mensal na Conta de Luz</h4><canvas id="economyChart"></canvas></div>
+                                <div class="chart-box"><h4>Retorno do Investimento (Payback) e Lucro Acumulado</h4><canvas id="profitChart"></canvas></div>
+                            </div>
+                            <p class="disclaimer">Este é um resultado aproximado. Um de nossos especialistas entrará em contato.</p>
+                            <button type="button" class="btn btn-secondary btn-restart">Fazer Nova Simulação</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        <section id="projetos" class="projects-section">
+            <div class="container">
+                <h2 class="section-title">PROJETOS</h2>
+                <p class="section-subtitle">Veja alguns dos nossos projetos de instalação</p>
+            </div>
+            <div class="carousel-wrapper" id="projects-carousel">
+                <div class="carousel-slider">
+                    <div class="carousel-track">
+                        <div class="carousel-card project-card"><img src="static/img/i1.jpg" alt="Instalação de painéis solares em residência"><div class="project-card-content"><h3>Residência Sustentável</h3><p>Economia de 95% na conta de luz para uma família em São Paulo.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i2.jpg" alt="Instalação de painéis solares em comércio"><div class="project-card-content"><h3>Supermercado Solar</h3><p>Redução de custos operacionais e energia limpa para o comércio.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i3.jpg" alt="Instalação de painéis solares em indústria"><div class="project-card-content"><h3>Indústria 4.0</h3><p>Autonomia energética para uma operação industrial ininterrupta.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i4.jpg" alt="Instalação de painéis solares em área rural"><div class="project-card-content"><h3>Agronegócio Eficiente</h3><p>Energia para sistemas de irrigação e produção no campo.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i1.jpg" alt="Instalação de painéis solares em telhado residencial"><div class="project-card-content"><h3>Condomínio Verde</h3><p>Solução completa para áreas comuns e residências em condomínio.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i2.jpg" alt="Painéis solares em estacionamento comercial"><div class="project-card-content"><h3>Estacionamento Solar</h3><p>Geração de energia e sombra para veículos de clientes e funcionários.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i3.jpg" alt="Grande instalação industrial de energia solar"><div class="project-card-content"><h3>Centro de Distribuição</h3><p>Energia limpa para logística e armazenamento em grande escala.</p></div></div>
+                        <div class="carousel-card project-card"><img src="static/img/i4.jpg" alt="Sistema de energia solar para agronegócio"><div class="project-card-content"><h3>Fazenda Autossuficiente</h3><p>Independência da rede elétrica para produção agropecuária.</p></div></div>
+                    </div>
+                </div>
+        
+                <button class="carousel-button prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-button next"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-dots"></div>
+            </div>
+        </section>
+
+        <section id="depoimentos" class="testimonials-section">
+            <div class="container">
+                <h2 class="section-title">DEPOIMENTOS</h2>
+                <p class="section-subtitle">O que nossos clientes dizem</p>
+            </div>
+            <div class="carousel-wrapper" id="testimonials-carousel">
+                <div class="carousel-slider">
+                    <div class="carousel-track">
+                        <div class="carousel-card new-depoimento-card">
+                            <div class="card-media-placeholder">
+                                <iframe src="https://www.youtube.com/embed/H1pAbrjU9h8?controls=0&modestbranding=1&rel=0" title="Depoimento Cliente SolarEnergy 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="card-content">
+                                <p class="card-economia-label">Economia de</p>
+                                <p class="card-economia-valor">R$4.500,00</p>
+                                <p class="card-description">"A mudança foi incrível! Minha conta de luz reduziu 95% e ainda ajudo o meio ambiente, com um retorno de investimento rápido e um impacto positivo duradouro."</p>
+                                <ul class="card-benefits">
+                                    <li><i class="fas fa-check-circle"></i> +R$54.000 economizados em 10 anos</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="carousel-card new-depoimento-card">
+                            <div class="card-media-placeholder">
+                                <iframe src="https://www.youtube.com/embed/H1pAbrjU9h8?controls=0&modestbranding=1&rel=0" title="Depoimento Cliente SolarEnergy 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="card-content">
+                                <p class="card-economia-label">Economia de</p>
+                                <p class="card-economia-valor">R$25.500,00</p>
+                                <p class="card-description">"A mudança foi incrível! Minha conta de luz reduziu 95% e ainda ajudo o meio ambiente, com um retorno de investimento rápido e um impacto positivo duradouro."</p>
+                                <ul class="card-benefits">
+                                    <li><i class="fas fa-check-circle"></i> +R$54.000 economizados em 10 anos</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="carousel-card new-depoimento-card">
+                            <div class="card-media-placeholder">
+                                <iframe src="https://www.youtube.com/embed/H1pAbrjU9h8?controls=0&modestbranding=1&rel=0" title="Depoimento Cliente SolarEnergy 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="card-content">
+                                <p class="card-economia-label">Economia de</p>
+                                <p class="card-economia-valor">R$10.500,00</p>
+                                <p class="card-description">"A mudança foi incrível! Minha conta de luz reduziu 95% e ainda ajudo o meio ambiente, com um retorno de investimento rápido e um impacto positivo duradouro."</p>
+                                <ul class="card-benefits">
+                                    <li><i class="fas fa-check-circle"></i> +R$54.000 economizados em 10 anos</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="carousel-card new-depoimento-card">
+                            <div class="card-media-placeholder">
+                                <iframe src="https://www.youtube.com/embed/H1pAbrjU9h8?controls=0&modestbranding=1&rel=0" title="Depoimento Cliente SolarEnergy 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="card-content">
+                                <p class="card-economia-label">Economia de</p>
+                                <p class="card-economia-valor">R$32.500,00</p>
+                                <p class="card-description">"A mudança foi incrível! Minha conta de luz reduziu 95% e ainda ajudo o meio ambiente, com um retorno de investimento rápido e um impacto positivo duradouro."</p>
+                                <ul class="card-benefits">
+                                    <li><i class="fas fa-check-circle"></i> +R$54.000 economizados em 10 anos</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <button class="carousel-button prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-button next"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-dots"></div>
+            </div>
+        </section>
+
+        <section id="estatisticas" class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card"><i class="fas fa-solar-panel"></i><h3>+500</h3><p>Projetos instalados</p></div>
+                    <div class="stat-card"><i class="fas fa-piggy-bank"></i><h3>R$1 Milhão</h3><p>Em economia gerada</p></div>
+                    <div class="stat-card"><i class="fas fa-smog"></i><h3>+9 mil t</h3><p>De CO2 Evitado</p></div>
+                    <div class="stat-card"><i class="fas fa-seedling"></i><h3>+350 mil</h3><p>Árvores salvas</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sistemas" class="systems-section">
+            <div class="container">
+                <h2 class="section-title">NOSSAS SOLUÇÕES</h2>
+                <p class="section-subtitle">Encontre o sistema ideal para sua necessidade</p>
+                <div class="systems-grid">
+                    <div class="system-card"><div class="system-card-icon"><i class="fas fa-network-wired"></i></div><h3>Sistema On Grid</h3><p>Ideal para redução da conta de luz. Sistema conectado à rede elétrica, permitindo a injeção de energia e a geração de créditos.</p></div>
+                    <div class="system-card"><div class="system-card-icon"><i class="fas fa-car-battery"></i></div><h3>Sistema Off Grid</h3><p>Ideal para áreas sem acesso à rede. Utiliza baterias para armazenar a energia gerada e atender as necessidades do local.</p></div>
+                    <div class="system-card"><div class="system-card-icon"><i class="fas fa-layer-group"></i></div><h3>Sistema Híbrido</h3><p>Ideal para economia e quedas de energia. Sistema conectado à rede e baterias, permitindo gerar créditos e armazenar energia para períodos de queda.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cta-banner" class="cta-banner">
+            <div class="cta-banner-background"></div>
+            <div class="container">
+                <div class="cta-content">
+                    <h2 class="cta-title">Não Perca Mais Tempo!</h2>
+                    <p class="cta-description">É rápido, fácil e pode transformar sua relação com a conta de luz.</p>
+                    <a href="#simulador" class="btn btn-inverted">
+                        <i class="fas fa-calculator"></i> Simule Sua Economia Agora!
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-column footer-about">
+                        <img src="static/img/logo.png" alt="Logo SolarEnergy" class="footer-logo">
+                        <p>Transformando a luz do sol em economia e sustentabilidade para sua casa ou empresa. Junte-se a nós na revolução da energia limpa.</p>
+                    </div>
+                    <div class="footer-column footer-links">
+                        <h4>Navegação</h4>
+                        <ul>
+                            <li><a href="#">Início</a></li><li><a href="#projetos">Projetos</a></li><li><a href="#depoimentos">Depoimentos</a></li><li><a href="#simulador">Simulador</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column footer-contact">
+                        <h4>Contato</h4>
+                        <ul>
+                            <li><i class="fas fa-map-marker-alt"></i><span>R. Padre Rocha, 13 - Vila Monte Serrat - SP</span></li>
+                            <li><i class="fas fa-envelope"></i><span>contato@hyperenergiasolar.com</span></li>
+                            <li><i class="fas fa-phone"></i><span>(11) 91286-1403</span></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column footer-social">
+                        <h4>Siga-nos</h4>
+                        <div class="social-icons">
+                            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Hyper Solar. Todos os direitos reservados.</p>
+            </div>
+            <p><a href="{{ url_for('main.login') }}" class="text-secondary small">Área Restrita</a></p>
+        </footer>
+
+        <a href="https://wa.me/5511912861403?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20energia%20solar." class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </main>
+    <script src="{{ url_for('static', filename='js/site_script.js') }}"></script>
+</body>
+</html>

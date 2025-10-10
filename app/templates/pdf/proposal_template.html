@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Proposta - {{ proposal.title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        :root {
+            --primary-green: #002fff; --dark-text: #2c3e50; --light-text: #576574;
+            --background-gray: #f8f9fa; --border-color: #e2e8f0;
+        }
+        @page { size: A4; margin: 2.5cm 2cm;
+            @bottom-center { content: "Página " counter(page) " de " counter(pages); font-size: 10px; color: var(--light-text); }
+        }
+        @page:first { margin: 0; @bottom-center { content: ""; } }
+        
+        body { font-family: 'Inter', sans-serif; color: var(--dark-text); font-size: 11px; line-height: 1.5; }
+        h2 { font-size: 18px; color: var(--primary-green); border-bottom: 2px solid var(--primary-green); padding-bottom: 4px; margin-top: 25px; margin-bottom: 15px; break-after: avoid; }
+        h3 { font-size: 14px; color: var(--dark-text); margin-top: 15px; margin-bottom: 8px; }
+        p { margin: 0 0 8px 0; }
+        .page-break { page-break-after: always; }
+        
+        /* --- ESTILOS FINAIS PARA A CAPA --- */
+        .cover-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            color: var(--dark-text);
+            display: flex;
+            flex-direction: column; /* Organiza os filhos verticalmente */
+            padding: 2.5cm;
+            box-sizing: border-box;
+        }
+        .cover-header {
+            flex-shrink: 0;
+            text-align: left;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 5px; /* Espaçamento entre a logo e o texto */
+        }
+        .cover-header img.logo {
+            max-width: 80px; /* Antes era 180px */
+        }
+        .company-name-logo {
+            font-size: 22px;
+            font-weight: 900;
+            color: #002e5f; /* Um tom de azul profissional */
+        }
+        .cover-main-content {
+            margin-top: 100px; /* <<< EMPURRA O BLOCO PARA BAIXO por um valor fixo */
+        }
+        /* --- NOVO CSS PARA CONTROLE INDEPENDENTE --- */
+        .cover-body {
+            flex-grow: 1;
+            text-align: left;
+        }
+        .cover-body h1 {
+            font-size: 38px;
+            color: var(--dark-text);
+            margin-top: 150px; /* <<< USE ESTE VALOR PARA MOVER O TÍTULO PARA CIMA/BAIXO */
+            margin-bottom: 0;
+        }
+        .cover-body .cover-info {
+            font-size: 14px;
+            line-height: 1.8;
+            margin-top: 100px; /* <<< USE ESTE VALOR PARA MOVER OS DADOS DO CLIENTE */
+        }
+        .cover-body .cover-info strong {
+            color: var(--dark-text);
+            display: inline-block;
+            width: 80px;
+        }
+        /* Rodapé */
+        .cover-footer {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            color: var(--light-text);
+            font-size: 10px;
+        }
+        .footer-company-info {
+            text-align: left;
+        }
+        .footer-company-info strong {
+            font-size: 15px; 
+            font-weight: 700;
+        }
+        .footer-company-info p {
+            margin: 0px 0;
+            font-size: 10px; /* <<< AUMENTADO DE 10px */
+            line-height: 1.8; /* Melhora a legibilidade */
+        }
+        .footer-image img { max-width: 400px; height: auto; }
+
+        /* --- BLOCO DE CSS FINAL PARA AS ASSINATURAS --- */
+        .signatures-section {
+            display: flex;
+            flex-direction: column;  /* <<< MUITO IMPORTANTE: Empilha os itens verticalmente */
+            align-items: center;     /* <<< Centraliza as caixas na horizontal */
+            gap: 70px;               /* <<< Espaço vertical entre as duas assinaturas */
+            text-align: center;
+            margin-top: 50px; /* AJUSTADO DE 110px PARA 50px */
+            page-break-before: always;
+        }
+        .signature-box {
+            width: 80%; /* <<< Agora este valor vai funcionar perfeitamente */
+        }
+        .signature-line {
+            border-bottom: 1px solid var(--dark-text);
+            margin-bottom: 10px;
+            padding-bottom: 100px; 
+        }
+        .signature-box strong {
+            font-size: 25px;
+            font-weight: 500;
+        }
+        .signature-box p {
+            font-size: 14px; /* Sugestão: Aumentar um pouco a fonte do cargo/email também */
+        }
+
+        /* --- ESTILOS DO CONTEÚDO --- */
+        .header { position: running(header); text-align: right; font-size: 10px; color: var(--light-text); }
+        @page { @top-right { content: element(header); padding-top: 1cm; } }
+        
+        .intro-page .lead { font-size: 13px; line-height: 1.7; color: var(--light-text); margin-top: 1cm; }
+        
+        .summary-grid { display: flex; gap: 15px; }
+        .summary-item ul { list-style: none; padding: 0; margin: 0; background-color: var(--background-gray); border: 1px solid var(--border-color); border-radius: 8px; }
+        .summary-item li { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border-color); font-size: 10px; }
+        .summary-item li:last-child { border-bottom: none; }
+        .summary-item li strong { color: var(--primary-green); }
+
+        .savings-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 15px; }
+        .savings-table th, .savings-table td { padding: 12px; border: 1px solid var(--border-color); }
+        .savings-table thead { background-color: var(--background-gray); font-weight: 700; }
+        .savings-table .old-bill { color: #dc3545; font-weight: 700; }
+        .savings-table .new-bill { color: var(--primary-green); font-weight: 700; }
+        .savings-table .total-savings { background-color: var(--primary-green); color: white; font-weight: 700; font-size: 14px; }
+        
+        .items-table { width: 100%; margin-top: 15px; border-collapse: collapse; break-inside: avoid; }
+        .items-table th, .items-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .items-table thead { background-color: var(--background-gray); font-weight: 600; }
+        .items-table tbody tr:nth-child(even) { background-color: var(--background-gray); }
+        .items-table .text-center { text-align: center; }
+        .items-table .text-right { text-align: right; }
+        
+        .warranty-container { display: flex; justify-content: space-between; gap: 20px; text-align: center; margin-top: 20px; break-inside: avoid; }
+        .warranty-box { flex: 1; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .warranty-box i { font-size: 28px; color: var(--primary-green); margin-bottom: 8px; }
+        .warranty-box h4 { font-size: 13px; color: var(--dark-text); font-weight: 700; }
+        .warranty-box p { font-size: 10px; line-height: 1.4; }
+
+        .service-cards-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; break-inside: avoid; }
+        .service-card { display: flex; align-items: center; gap: 10px; flex: 1 1 48%; background-color: var(--background-gray); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
+        .service-card i { font-size: 20px; color: var(--primary-green); }
+        .service-card h4 { font-size: 11px; font-weight: 600; color: var(--dark-text); }
+        
+        .client-logos-section { text-align: center; break-inside: avoid; }
+        .client-logos-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px 25px; padding: 15px 0; margin-top: 20px; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .logo-box { flex-basis: 8%; font-size: 28px; color: #a0aec0; }
+                
+        .financial-kpis { display: flex; gap: 15px; text-align: center; }
+        .kpi-box { flex: 1; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .kpi-box .icon { font-size: 24px; color: var(--primary-green); margin-bottom: 8px; }
+        .kpi-box .label { font-size: 9px; font-weight: 600; text-transform: uppercase; margin-bottom: 3px; color: var(--light-text); }
+        .kpi-box .value { font-size: 18px; font-weight: 700; color: var(--dark-text); }
+        .explanation-box { background-color: var(--background-gray); padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 10px; }
+        
+        .chart-container { margin-top: 25px; text-align: center; break-inside: avoid; }
+        .chart-container h3 { font-size: 12px; color: var(--light-text); margin-bottom: 8px; font-weight: 500; }
+        .chart-container img { max-width: 100%; }
+
+        .dual-section {
+            display: flex;
+            gap: 20px;
+            break-inside: avoid;
+        }
+        .dual-section .col {
+            flex: 1;
+        }
+        .dual-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .dual-section li {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dual-section li i {
+            color: var(--primary-green);
+            font-size: 16px;
+        }
+        .dual-section li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="cover-page">
+        <div class="cover-header">
+            <div class="logo-container">
+                <img src="{{ company_info.logo_b64 }}" alt="Logo da Empresa" class="logo">
+                <span class="company-name-logo">Hyper Energia Solar</span>
+            </div>
+        </div>
+    
+        <div class="cover-body">
+            <h1>{{ proposal.title }}</h1>
+            
+            <div class="cover-info">
+                <p><strong>Cliente:</strong> {{ proposal.client.name }}</p>
+                <p><strong>Data:</strong> {{ proposal.creation_date.strftime('%d/%m/%Y') }}</p>
+                <p><strong>Validade:</strong> 
+                    {% if proposal.valid_until %}{{ proposal.valid_until.strftime('%d/%m/%Y') }}{% else %}A definir{% endif %}
+                </p>
+                <p>7 dias ou enquanto durar o estoque</p>
+            </div>
+        </div>
+    
+        <div class="cover-footer">
+            <div class="footer-company-info">
+                <p><strong>{{ company_info.name }}</strong></p>
+                <p>CNPJ: {{ company_info.cnpj }}</p>
+                <p>Telefone: {{ company_info.phone }}</p>
+                <p>Site: www.hyperenergiasolar.com.br</p>
+            </div>
+            <div class="footer-image">
+                <img src="{{ company_info.footer_image_b64 }}" alt="Detalhe Visual">
+            </div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+    <div class="header"><strong>Hyper Energia</strong> | Proposta para {{ proposal.client.name }}</div>
+
+    <div class="content-page">
+        <div class="intro-page">
+            <h2>Uma Nova Era de Energia para Você</h2>
+            <p class="lead">Prezado(a) {{ proposal.client.name.split(' ')[0] }},</p>
+            <p>Agradecemos a oportunidade de apresentar sua proposta personalizada para um sistema de energia solar fotovoltaica. A seguir, detalhamos a solução técnica que projetamos para você e, mais importante, demonstramos como este investimento se traduz em economia, segurança e sustentabilidade para os próximos anos.</p>
+        </div>
+
+        <h2>Resumo da Solução Proposta</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <ul>
+                    <li><span>Potência do Sistema:</span> <strong>{{ "%.2f"|format(proposal.system_power_kwp or 0) }} kWp</strong></li>
+                    <li><span>Inversor Recomendado:</span> <strong>{{ proposal.recommended_inverter_kw or 0 }} kW</strong></li>
+                    <li><span>Quantidade de Módulos:</span> <strong>{{ proposal.panel_quantity or 0 }} de {{ proposal.panel_power_wp or 'N/A' }} Wp</strong></li>
+                </ul>
+            </div>
+            <div class="summary-item">
+                <ul>
+                    <li><span>Investimento Total:</span> <strong style="color: #dc3545;">R$ {{ "{:,.2f}".format(proposal.total_investment or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong></li>
+                    <li><span>Economia Anual Estimada:</span> <strong>R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong></li>
+                    <li><span>Payback Simples:</span> <strong>{{ "%.1f"|format(proposal.payback_years or 0) }} anos</strong></li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>Detalhamento de Gastos e Economia</h2>
+        <table class="savings-table">
+            <thead>
+                <tr><th>Descrição</th><th>Gasto Anual SEM Energia Solar</th><th>Gasto Anual COM Energia Solar</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Gasto com Energia</td>
+                    <td class="old-bill">R$ {{ "{:,.2f}".format(old_annual_bill or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</td>
+                    <td class="new-bill">R$ {{ "{:,.2f}".format(new_annual_bill or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</td>
+                </tr>
+                <tr class="total-savings">
+                    <td colspan="2">Economia Anual Gerada</td>
+                    <td>R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        {% if monthly_chart_b64 %}<div class="chart-container"><h3>Produção Mensal Estimada</h3><img src="data:image/png;base64,{{ monthly_chart_b64 }}"></div>{% endif %}
+        
+        <h2>Análise de Investimento a Longo Prazo</h2>
+        <div class="explanation-box">
+            <strong><i class="fas fa-chart-line"></i> Considerando a Inflação Energética:</strong> Nossos cálculos projetam um aumento médio de 8% ao ano na tarifa de energia. Isso significa que sua economia com o sistema solar será ainda maior a cada ano, protegendo seu orçamento e potencializando seu retorno.
+        </div>
+        
+        <div class="financial-kpis" style="margin-top: 20px;">
+            <div class="kpi-box"><div class="icon"><i class="fas fa-chart-pie"></i></div><div class="label">Taxa de Retorno (TIR)</div><div class="value">{{ "%.2f"|format(financials.irr or 0) }}% a.a.</div></div>
+            <div class="kpi-box"><div class="icon"><i class="fas fa-sack-dollar"></i></div><div class="label">Valor Presente Líquido (VPL)</div><div class="value">R$ {{ "{:,.0f}".format(financials.npv or 0) | replace(',', '.') }}</div></div>
+            <div class="kpi-box"><div class="icon"><i class="fas fa-coins"></i></div><div class="label">Lucro em 25 Anos</div><div class="value">R$ {{ "{:,.0f}".format(financials.profit_in_25_years or 0) | replace(',', '.') }}</div></div>
+        </div>
+        <p style="font-size: 9px; color: var(--light-text); text-align: center; margin-top: 5px;">VPL calculado com taxa de desconto de 6% a.a. O lucro estimado já desconta o investimento inicial.</p>
+
+        {% if cumulative_cost_chart_b64 %}
+        <div class="chart-container">
+            <h3>Projeção de Custo Acumulado (25 Anos)</h3>
+            <p style="text-align: center; font-size: 10px;">O gráfico compara o custo total que você teria com energia (linha vermelha) com o custo possuindo o sistema solar (linha verde). A área verde representa seu **lucro líquido**.</p>
+            <img src="data:image/png;base64,{{ cumulative_cost_chart_b64 }}">
+        </div>
+        {% endif %}
+
+        <h2>Detalhes do Kit Fotovoltaico</h2>
+        <table class="items-table">
+            <thead>
+                <tr><th>Produto</th><th>Fabricante</th><th class="text-center">Potência</th><th class="text-center">Garantia</th><th class="text-center">Qtd.</th></tr>
+            </thead>
+            <tbody>
+                {% for item in proposal.items %}
+                <tr>
+                    <td><strong>{{ item.product.name }}</strong></td>
+                    <td>{{ item.product.manufacturer or '-' }}</td>
+                    <td class="text-center">{{ item.product.power_wp or '-' }}{% if item.product.power_wp %} Wp{% endif %}</td>
+                    <td class="text-center">{{ item.product.warranty_years or '-' }}{% if item.product.warranty_years %} anos{% endif %}</td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center p-3 text-muted">Nenhum item detalhado nesta proposta.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2>Sua Solução Completa: Serviços e Garantias</h2>
+        <div class="dual-section">
+            <div class="col">
+                <h3>Serviços Inclusos</h3>
+                <ul>
+                    <li><i class="fa fa-fw fa-solar-panel"></i> <div><strong>Projeto e Homologação</strong><br><small>Cuidamos de toda a burocracia com a concessionária.</small></div></li>
+                    <li><i class="fa fa-fw fa-tools"></i> <div><strong>Instalação Especializada</strong><br><small>Equipe técnica qualificada para uma instalação rápida e segura.</small></div></li>
+                    <li><i class="fa fa-fw fa-chart-line"></i> <div><strong>Monitoramento de Performance</strong><br><small>Acompanhe a geração de energia do seu sistema em tempo real.</small></div></li>
+                    <li><i class="fa fa-fw fa-headset"></i> <div><strong>Suporte Pós-Venda</strong><br><small>Estamos sempre disponíveis para tirar suas dúvidas.</small></div></li>
+                </ul>
+            </div>
+            <div class="col">
+                <h3>Garantias do Sistema</h3>
+                <ul>
+                    <li><i class="fa fa-fw fa-microchip"></i> <div><strong>25 Anos de Performance</strong><br><small>Garantia de eficiência dos módulos fotovoltaicos.</small></div></li>
+                    <li><i class="fa fa-fw fa-bolt"></i> <div><strong>Até 10 Anos no Inversor</strong><br><small>A garantia do coração do seu sistema, vinda dos melhores fabricantes.</small></div></li>
+                    <li><i class="fa fa-fw fa-hard-hat"></i> <div><strong>1 Ano de Instalação</strong><br><small>Garantia completa sobre todos os serviços executados pela nossa equipe.</small></div></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="client-logos-section">
+            <h2>Nossos Clientes Confiam</h2>
+            <div class="client-logos-container">
+                <div class="logo-box"><i class="fas fa-store"></i></div><div class="logo-box"><i class="fas fa-tractor"></i></div><div class="logo-box"><i class="fas fa-hospital"></i></div><div class="logo-box"><i class="fas fa-home"></i></div><div class="logo-box"><i class="fas fa-school"></i></div><div class="logo-box"><i class="fas fa-industry"></i></div><div class="logo-box"><i class="fas fa-hotel"></i></div><div class="logo-box"><i class="fas fa-church"></i></div><div class="logo-box"><i class="fas fa-warehouse"></i></div><div class="logo-box"><i class="fas fa-gas-pump"></i></div><div class="logo-box"><i class="fas fa-store-alt"></i></div><div class="logo-box"><i class="fas fa-seedling"></i></div><div class="logo-box"><i class="fas fa-clinic-medical"></i></div><div class="logo-box"><i class="fas fa-building"></i></div><div class="logo-box"><i class="fas fa-university"></i></div><div class="logo-box"><i class="fas fa-cogs"></i></div><div class="logo-box"></div>
+            </div>
+        </div>
+
+        <div class="signatures-section">
+            <div class="signature-box"><div class="signature-line"></div><strong>{{ proposal.author.username }}</strong><p>Consultor de Vendas | Hyper Energia Solar</p><p>{{ proposal.author.email }}</p></div>
+            <div class="signature-box"><div class="signature-line"></div><strong>Eng. Responsável Fictício</strong><p>Engenheiro Eletricista</p><p>CREA: 123456789-0</p></div>
+        </div>
+    </div>
+</body>
+</html>

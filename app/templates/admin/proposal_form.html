@@ -1,0 +1,146 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mt-4">{{ title }}</h2>
+        <p class="lead text-muted">Para o cliente: <strong>{{ client.name }}</strong></p>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show">{{ messages[0][1] }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endif %}
+{% endwith %}
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="POST" action="" novalidate>
+            {{ form.hidden_tag() }}
+            {{ form.system_power_kwp }}
+            {{ form.panel_quantity }}
+            {{ form.recommended_inverter_kw }}
+
+            <h4 class="text-muted fw-light mb-3">Dados Gerais da Proposta</h4>
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-control", placeholder="Ex: Proposta Residencial Família Silva") }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    {{ form.valid_until.label(class="form-label") }}
+                    {{ form.valid_until(class="form-control", type="date") }}
+                </div>
+            </div>
+
+            <hr class="form-section-divider">
+            <h4 class="text-muted fw-light mb-3">Dados de Consumo e Tarifas</h4>
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Forma de Análise</label>
+                    <div class="d-flex pt-2">
+                        {% for subfield in form.consumption_input_type %}<div class="form-check me-3">{{ subfield(class="form-check-input") }} {{ subfield.label(class="form-check-label") }}</div>{% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div id="kwh-input-group">{{ form.avg_consumption_kwh.label(class="form-label") }}{{ form.avg_consumption_kwh(class="form-control", id="avg_consumption_kwh") }}</div>
+                    <div id="brl-input-group" class="d-none">
+                        {{ form.avg_bill_brl.label(class="form-label") }}
+                        <div class="input-group"><span class="input-group-text">R$</span>{{ form.avg_bill_brl(class="form-control", id="avg_bill_brl") }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    {{ form.kwh_price.label(class="form-label") }}
+                    {{ form.kwh_price(class="form-control", id="kwh_price", placeholder="Ex: 0.95") }}
+                </div>
+            </div>
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    {{ form.grid_type.label(class="form-label") }}
+                    {{ form.grid_type(class="form-select") }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Irradiação Solar (Hsp)</label>
+                    <div class="input-group">
+                        {{ form.solar_irradiance(class="form-control", id="solar_irradiance") }}
+                        <button class="btn btn-outline-secondary" type="button" id="fetchIrradianceBtn" data-client-id="{{ client.id }}">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span><i class="fas fa-search-location"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="form-section-divider">
+            <h4 class="text-muted fw-light mb-3">Dimensionamento Automático</h4>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    {{ form.panel_power_wp.label(class="form-label") }}
+                    <div class="input-group">
+                        {{ form.panel_power_wp(class="form-control", id="panel_power_wp") }}
+                        <span class="input-group-text">Wp</span>
+                    </div>
+                </div>
+                <div class="col-md-8 d-flex align-items-end mb-3">
+                    <button type="button" class="btn btn-primary w-100" id="calculateSystemBtn">
+                        <i class="fas fa-calculator me-2"></i>Calcular Sistema Ideal
+                    </button>
+                </div>
+            </div>
+
+            <hr class="form-section-divider">
+            <h4 class="text-muted fw-light mb-3">Detalhes Financeiros e Observações</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.total_investment.label(class="form-label") }}
+                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.total_investment(class="form-control", placeholder="Preenchido após cálculo ou manual") }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.public_lighting_fee.label(class="form-label") }}
+                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.public_lighting_fee(class="form-control", placeholder="Ex: 25.50") }}</div>
+                </div>
+            </div>
+            <div class="mb-3">
+                {{ form.notes.label(class="form-label") }}
+                {{ form.notes(class="form-control", rows=3) }}
+            </div>
+
+            <hr class="form-section-divider">
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ url_for('main.clients') }}" class="btn btn-light">Cancelar</a>
+                {{ form.submit(class="btn btn-success") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="addConcessionariaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+        <form id="addConcessionariaForm" action="{{ url_for('main.add_concessionaria') }}" method="POST" novalidate>
+            {{ concessionaria_form.hidden_tag() }}
+            <div class="modal-header"><h5 class="modal-title">Adicionar Nova Concessionária</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">{{ concessionaria_form.name.label(class="form-label") }}{{ concessionaria_form.name(class="form-control") }}</div>
+                <div class="mb-3">{{ concessionaria_form.fio_b_price.label(class="form-label") }}{{ concessionaria_form.fio_b_price(class="form-control", placeholder="Ex: 0.32") }}</div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>{{ concessionaria_form.submit(class="btn btn-success") }}</div>
+        </form>
+    </div></div>
+</div>
+
+<div class="modal fade" id="recommendationModal" tabindex="-1" aria-labelledby="recommendationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="recommendationModalLabel"><i class="fas fa-check-circle text-success me-2"></i>Sistema Recomendado</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p>Com base nos dados fornecidos, esta é a nossa sugestão de sistema:</p>
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">Potência do Sistema <span class="badge bg-primary rounded-pill fs-6" id="result-system-power">--</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Quantidade de Módulos <span class="badge bg-primary rounded-pill fs-6" id="result-panel-qty">--</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Potência do Inversor <span class="badge bg-primary rounded-pill fs-6" id="result-inverter">--</span></li>
+        </ul>
+        <div class="alert alert-info mt-3 small"><strong>Atenção:</strong> Os valores calculados foram preenchidos nos campos ocultos do formulário e serão salvos com a proposta.</div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

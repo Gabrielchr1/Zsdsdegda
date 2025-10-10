@@ -1,0 +1,243 @@
+:root {
+    --primary-green: #0051ff;
+    --light-green: #deeaff;
+    --dark-text: #2c3e50;
+    --light-text: #576574;
+    --background-gray: #f8f9fa;
+    --border-color: #e2e8f0;
+    --sidebar-width: 250px;
+    --sidebar-width-collapsed: 80px;
+}
+
+body {
+    background-color: var(--background-gray);
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- ESTRUTURA PRINCIPAL --- */
+#wrapper { display: flex; }
+#page-content-wrapper { width: 100%; transition: padding-left 0.3s ease; padding-left: var(--sidebar-width); }
+body.sidebar-collapsed #page-content-wrapper { padding-left: var(--sidebar-width-collapsed); }
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background-color: #ffffff;
+    box-shadow: 0 0 2rem 0 rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    position: fixed;
+    left: 0;
+}
+body.sidebar-collapsed .sidebar { width: var(--sidebar-width-collapsed); }
+
+
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+
+.logop {
+    height: 50px; /* ajuste conforme necessário */
+    width: auto;
+    vertical-align: middle; /* alinha com o texto, se houver */
+}
+
+
+
+
+/* Sobrescrevendo o btn-success */
+.btn-success {
+    background-color: #0044ff; /* cor desejada */
+    border-color: #0044ff;     /* mesma cor da borda */
+    color: #fff;               /* cor do texto */
+}
+
+/* Opcional: hover */
+.btn-success:hover {
+    background-color: #000a96;
+    border-color: #000a96;
+    color: #fff;
+}
+
+.mt-4 {
+    font-size: 25px;
+}
+
+
+
+
+
+
+
+
+.sidebar-header span { margin-left: 10px; transition: opacity 0.2s ease; }
+body.sidebar-collapsed .sidebar-header span { opacity: 0; pointer-events: none; }
+
+/* --- LINKS DO MENU --- */
+.sidebar-nav { list-style: none; padding: 0 1rem; }
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin: 0.2rem 0;
+    color: var(--light-text);
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+.sidebar-link i {
+    width: 20px; /* Alinhamento dos ícones */
+    margin-right: 1.25rem;
+    transition: all 0.2s ease;
+}
+.sidebar-link span { transition: opacity 0.2s ease; }
+body.sidebar-collapsed .sidebar-link span { opacity: 0; pointer-events: none; }
+
+.sidebar-link:hover {
+    background-color: var(--light-green);
+    color: var(--primary-green);
+}
+.sidebar-link.active, .sidebar-item.active > .sidebar-link {
+    background-color: var(--light-green);
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+/* --- SUBMENUS --- */
+.sidebar-item.active .has-arrow::after { transform: rotate(180deg); }
+.has-arrow::after {
+    content: " ";
+    display: inline-block;
+    width: 0.4em;
+    height: 0.4em;
+    border-right: 0.1em solid;
+    border-top: 0.1em solid;
+    transform: rotate(135deg);
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+body.sidebar-collapsed .has-arrow::after { display: none; }
+
+.sidebar-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    background-color: #fdfdfd;
+    border-radius: 0.5rem;
+    padding-left: 1.5rem;
+}
+.sidebar-item.active > .sidebar-dropdown { max-height: 500px; /* Valor alto para garantir que o conteúdo caiba */ }
+.sidebar-dropdown .sidebar-link { font-size: 0.9em; padding-top: 0.6rem; padding-bottom: 0.6rem; }
+
+/* --- BARRA SUPERIOR --- */
+#page-content-wrapper .navbar {
+    background-color: #ffffff;
+    box-shadow: 0 0 1rem 0 rgba(0,0,0,0.05);
+}
+#sidebarToggle {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--light-text);
+}
+#sidebarToggle:hover { color: var(--primary-green); }
+
+/* --- ESTILOS PARA O FORMULÁRIO DE CLIENTE --- */
+
+.form-type-toggle .nav-link {
+    color: var(--light-text);
+    background-color: var(--background-gray);
+    border: 1px solid var(--border-color);
+    margin: 0 2px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-type-toggle .nav-link.active {
+    color: #fff;
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+.form-section-divider {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+
+
+
+.kpi-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+.kpi-card .card-body {
+    padding: 1.25rem;
+}
+
+.kpi-card .text-xs {
+    font-size: 0.75rem;
+}
+
+.kpi-card .fa-2x {
+    color: #dddfeb;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.kpi-card:hover .fa-2x {
+    transform: scale(1.15);
+}
+
+.border-left-primary { border-left: 0.25rem solid #4e73df !important; }
+.border-left-success { border-left: 0.25rem solid var(--primary-green) !important; }
+.border-left-info { border-left: 0.25rem solid #36b9cc !important; }
+.border-left-warning { border-left: 0.25rem solid #f6c23e !important; }
+
+.kpi-card.border-left-primary:hover .fa-2x { color: #4e73df; }
+.kpi-card.border-left-success:hover .fa-2x { color: var(--primary-green); }
+.kpi-card.border-left-info:hover .fa-2x { color: #36b9cc; }
+.kpi-card.border-left-warning:hover .fa-2x { color: #f6c23e; }
+
+.card-header .font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-primary { color: #4e73df !important; }
+.text-success { color: var(--primary-green) !important; }
+.text-info { color: #36b9cc !important; }
+.text-warning { color: #f6c23e !important; }
+
+
+/* Garante que o corpo do card cresça para preencher o espaço vertical */
+.card.d-flex.flex-column .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+/* Define uma altura fixa para os containers dos gráficos */
+.chart-container {
+    position: relative; /* Necessário para o Chart.js funcionar bem */
+    height: 320px;
+}

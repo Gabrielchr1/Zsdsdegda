@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solução Solar - Economize com Energia Solar</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Seu CSS personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+</head>
+
+<body data-bs-spy="scroll" data-bs-target="#mainNavbar" data-bs-offset="70">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-solar-panel me-2"></i>SoluçãoSolar
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Sobre Nós</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Serviços</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#simulator">Simulador</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#testimonials">Depoimentos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contato</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <h1 class="fade-in">Transforme Luz do Sol em Economia Real</h1>
+            <p class="fade-in">Invista em energia solar e reduza sua conta de luz em até 95%. Soluções completas e personalizadas para sua residência ou empresa.</p>
+            <a href="#simulator" class="btn btn-primary-custom fade-in">Simule Sua Economia Agora!</a>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <h2 class="section-title fade-in">Sobre Nossa Empresa</h2>
+            <div class="row align-items-center">
+                <div class="col-lg-6 fade-in text-center text-lg-start">
+                    <img src="https://cdn.pixabay.com/photo/2024/03/26/11/57/solar-8656654_1280.jpg" class="img-fluid rounded-3 shadow-lg mb-4 mb-lg-0" alt="Equipe da Solução Solar">
+                </div>
+                <div class="col-lg-6 fade-in">
+                    <h3 class="mb-3 fw-bold" style="color: #28a745;">Pioneiros em Energia Limpa e Sustentável</h3>
+                    <p class="lead mb-4">Na SoluçãoSolar, somos apaixonados por sustentabilidade e inovação. Nossa missão é levar energia limpa e renovável para todos, proporcionando economia e contribuindo para um futuro mais verde e próspero.</p>
+                    <p>Com anos de experiência no mercado e uma equipe de especialistas altamente qualificados, estamos prontos para oferecer as melhores soluções em energia solar fotovoltaica, desde o projeto inicial e consultoria até a instalação, homologação e manutenção do seu sistema.</p>
+                    <p class="fw-semibold mt-4">Nossos Pilares:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>Sustentabilidade em Ação</li>
+                        <li class="mb-2"><i class="fas fa-lightbulb text-warning me-2"></i>Inovação e Tecnologia de Ponta</li>
+                        <li class="mb-2"><i class="fas fa-medal text-primary me-2"></i>Qualidade e Excelência Garantidas</li>
+                        <li class="mb-2"><i class="fas fa-handshake text-info me-2"></i>Foco Total na Satisfação do Cliente</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title fade-in">Nossos Serviços Completos</h2>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-6 col-lg-4 fade-in d-flex">
+                    <div class="icon-box w-100">
+                        <i class="fas fa-home"></i>
+                        <h4 class="fw-semibold">Sistemas Residenciais</h4>
+                        <p>Projetos personalizados para sua casa, garantindo máxima eficiência e economia na sua conta de luz.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 fade-in d-flex">
+                    <div class="icon-box w-100">
+                        <i class="fas fa-building"></i>
+                        <h4 class="fw-semibold">Sistemas Comerciais</h4>
+                        <p>Soluções para empresas de todos os portes, reduzindo custos operacionais e fortalecendo sua imagem sustentável.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 fade-in d-flex">
+                    <div class="icon-box w-100">
+                        <i class="fas fa-industry"></i>
+                        <h4 class="fw-semibold">Sistemas Industriais e Rurais</h4>
+                        <p>Projetos de grande escala para indústrias e agronegócio, otimizando o consumo e gerando economia.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 fade-in d-flex">
+                    <div class="icon-box w-100">
+                        <i class="fas fa-solar-panel"></i>
+                        <h4 class="fw-semibold">Projeto e Homologação</h4>
+                        <p>Desenvolvemos o projeto completo e cuidamos de toda a burocracia junto à concessionária de energia.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 fade-in d-flex">
+                    <div class="icon-box w-100">
+                        <i class="fas fa-tools"></i>
+                        <h4 class="fw-semibold">Instalação Especializada</h4>
+                        <p>Equipe técnica qualificada para uma instalação rápida, segura e eficiente do seu sistema solar.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 fade-in d-flex">
+                    <div class="icon-box w-100">
+                        <i class="fas fa-headset"></i>
+                        <h4 class="fw-semibold">Manutenção e Suporte Pós-Venda</h4>
+                        <p>Oferecemos planos de manutenção e monitoramento, além de suporte técnico ágil e especializado.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulator Section -->
+    <section id="simulator" class="py-5">
+        <div class="container">
+            <h2 class="section-title fade-in">Simule Sua Economia e Investimento</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-13 col-xl-11 fade-in">
+                    <div class="simulator-card">
+                        <p class="text-center mb-4 lead">Descubra o potencial de economia com energia solar. Preencha os campos abaixo:</p>
+                        <form id="solarSimulatorForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="currentBill" class="form-label">Valor médio da sua conta de luz mensal? (R$)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <input type="number" class="form-control form-control-lg" id="currentBill" placeholder="Ex: 350" required min="50" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="sunlightHours" class="form-label">Média de sol pleno por dia (sua região):</label>
+                                    <select class="form-select form-select-lg" id="sunlightHours">
+                                        <option value="3">Até 3 horas</option>
+                                        <option value="4" selected>Entre 3 e 4 horas</option>
+                                        <option value="4.5">Entre 4 e 5 horas</option>
+                                        <option value="5">Entre 5 e 6 horas</option>
+                                        <option value="5.5">Mais de 6 horas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="roofType" class="form-label">Tipo de telhado principal:</label>
+                                <select class="form-select form-select-lg" id="roofType">
+                                    <option value="ceramico">Cerâmico / Concreto</option>
+                                    <option value="metalico">Metálico (zinco, galvalume)</option>
+                                    <option value="fibrocimento">Fibrocimento / Amianto</option>
+                                    <option value="laje">Laje (sem telhado / estrutura)</option>
+                                    <option value="solo">Instalação em Solo</option>
+                                    <option value="outro">Outro / Não sei</option>
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success-custom btn-lg">
+                                    <i class="fas fa-calculator me-2"></i>Calcular Economia
+                                </button>
+                            </div>
+                        </form>
+                        <div id="simulationResult" class="d-none mt-4">
+                            <h4 class="text-center">Sua Estimativa Personalizada:</h4>
+                            <div class="row text-center my-4">
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3 bg-white rounded shadow-sm">
+                                        <p class="fs-5 mb-1">Economia Mensal</p>
+                                        <strong id="monthlySavings" class="fs-4 text-success"></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                     <div class="p-3 bg-white rounded shadow-sm">
+                                        <p class="fs-5 mb-1">Economia Anual</p>
+                                        <strong id="annualSavings" class="fs-4 text-success"></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                     <div class="p-3 bg-white rounded shadow-sm">
+                                        <p class="fs-5 mb-1">Payback Estimado</p>
+                                        <strong id="paybackTime" class="fs-4 text-primary"></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="systemSize" class="text-center fs-5"></p>
+                            
+                            <div class="row">
+                                <div class="col-lg-6 mb-4 mb-lg-0"> <!-- Adicionado mb-4 mb-lg-0 para espaçamento em mobile -->
+                                    <div class="chart-container">
+                                        <h5 class="text-center mb-3">Projeção de Economia (5 Anos)</h5>
+                                        <canvas id="savingsChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="chart-container">
+                                         <h5 class="text-center mb-3">Investimento vs Economia Acumulada</h5>
+                                        <canvas id="investmentChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <small class="text-muted d-block text-center"><strong>Atenção:</strong> Esta é uma simulação com base em médias. Para um orçamento preciso e análise técnica detalhada, <a href="#contact">entre em contato conosco</a>. Teremos prazer em realizar uma avaliação gratuita para o seu caso específico.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title fade-in">O Que Nossos Clientes Dizem</h2>
+            <div class="row">
+                <div class="col-md-6 col-lg-4 mb-4 fade-in d-flex">
+                    <div class="testimonial-card">
+                        <img src="https://placehold.co/100x100/ffc107/333?text=MS" alt="Cliente Satisfeito 1" class="mx-auto d-block">
+                        <p class="quote">"Desde que instalei o sistema solar com a SoluçãoSolar, minha conta de luz reduziu drasticamente! Atendimento excelente do início ao fim."</p>
+                        <div class="name text-center">Maria S.</div>
+                        <div class="location text-center">Residencial - Campinas, SP</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-4 fade-in d-flex">
+                    <div class="testimonial-card">
+                        <img src="https://placehold.co/100x100/28a745/fff?text=JP" alt="Cliente Satisfeito 2" class="mx-auto d-block">
+                        <p class="quote">"Profissionalismo ímpar e o investimento valeu cada centavo. Minha empresa agora é mais sustentável e econômica. Recomendo a SoluçãoSolar!"</p>
+                        <div class="name text-center">João P.</div>
+                        <div class="location text-center">Comercial - Curitiba, PR</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-4 fade-in d-flex mx-auto"> <!-- mx-auto para centralizar o último em telas médias -->
+                    <div class="testimonial-card">
+                        <img src="https://placehold.co/100x100/007bff/fff?text=AC" alt="Cliente Satisfeito 3" class="mx-auto d-block">
+                        <p class="quote">"A equipe foi muito atenciosa, tirou todas as minhas dúvidas e o processo foi transparente. Estou muito feliz com a economia e por ajudar o planeta."</p>
+                        <div class="name text-center">Ana C.</div>
+                        <div class="location text-center">Residencial - Salvador, BA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <h2 class="section-title fade-in">Entre em Contato e Peça Seu Orçamento</h2>
+            <div class="row">
+                <div class="col-lg-5 fade-in mb-4 mb-lg-0">
+                    <h4 class="mb-3 fw-bold" style="color: #28a745;">Fale Conosco Agora Mesmo</h4>
+                    <p>Tem alguma dúvida ou deseja um orçamento personalizado e gratuito? Preencha o formulário ao lado ou utilize nossos canais de atendimento. Nossa equipe está pronta para te ajudar a dar o próximo passo rumo à economia e sustentabilidade!</p>
+                    <div class="contact-info mt-4">
+                        <p><i class="fas fa-map-marker-alt"></i> Rua da Energia Limpa, 123, Bairro Solar, Cidade Verde - UF</p>
+                        <p><i class="fas fa-phone"></i> <a href="tel:+55XX9XXXXXXXX" class="text-decoration-none text-dark">(XX) 9XXXX-XXXX</a> (WhatsApp)</p>
+                        <p><i class="fas fa-envelope"></i> <a href="mailto:contato@solucaosolar.com.br" class="text-decoration-none text-dark">contato@solucaosolar.com.br</a></p>
+                        <p><i class="fas fa-clock"></i> Seg - Sex: 8:00 - 18:00 | Sáb: 8:00 - 12:00</p>
+                    </div>
+                </div>
+                <div class="col-lg-7 fade-in">
+                    <div class="bg-white p-4 p-md-5 rounded-3 shadow-lg">
+                        <form id="contactForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactName" class="form-label">Nome Completo*</label>
+                                    <input type="text" class="form-control" id="contactName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactEmail" class="form-label">E-mail*</label>
+                                    <input type="email" class="form-control" id="contactEmail" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactPhone" class="form-label">Telefone/WhatsApp*</label>
+                                    <input type="tel" class="form-control" id="contactPhone" placeholder="(XX) XXXXX-XXXX" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactSubject" class="form-label">Assunto*</label>
+                                    <input type="text" class="form-control" id="contactSubject" value="Orçamento Energia Solar" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="contactMessage" class="form-label">Sua Mensagem*</label>
+                                <textarea class="form-control" id="contactMessage" rows="4" placeholder="Descreva brevemente sua necessidade (ex: tipo de imóvel, consumo aproximado, etc.)" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom w-100 btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensagem e Solicitar Orçamento
+                            </button>
+                        </form>
+                        <div id="contactFormFeedback" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="social-icons mb-4">
+                <a href="#" aria-label="Facebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://wa.me/55XXXXXXXXXXX?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20energia%20solar." aria-label="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p>&copy; <span id="currentYear"></span> SoluçãoSolar. Todos os direitos reservados.</p>
+            <p>CNPJ: XX.XXX.XXX/0001-XX | Endereço: Rua da Energia Limpa, 123, Cidade Verde - UF</p>
+            <p class="mt-3">Desenvolvido com <i class="fas fa-heart text-danger"></i> por <a href="#" target="_blank">Seu Nome/Sua Agência</a></p>
+
+            <p><a href="{{ url_for('main.login') }}" class="text-secondary small">Área Restrita</a></p>
+
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+
+    <!-- Seu JS principal -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

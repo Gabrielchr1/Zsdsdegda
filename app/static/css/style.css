@@ -1,0 +1,384 @@
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    overflow-x: hidden; /* Evita scroll horizontal */
+}
+
+.navbar {
+    background-color: rgba(255, 255, 255, 0.95); /* Fundo branco semi-transparente */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: #28a745 !important; /* Verde vibrante */
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: #555 !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 0.5rem 1rem;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: #28a745 !important; /* Verde vibrante no hover e ativo */
+}
+
+.hero-section {
+    background: url('https://cdn.pixabay.com/photo/2023/10/07/12/58/ai-generated-8300145_1280.png') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 120px 0; /* Reduzido para melhor visualização em mobile */
+    text-align: center;
+    position: relative;
+    min-height: 80vh; /* Garante altura mínima */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hero-section::before { /* Overlay para melhor contraste do texto */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+.hero-section .container {
+    position: relative; /* Para que o conteúdo fique acima do overlay */
+    z-index: 1;
+}
+
+.hero-section h1 {
+    font-size: 3rem; /* Ajustado para mobile first */
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+}
+
+.hero-section p {
+    font-size: 1.15rem; /* Ajustado para mobile first */
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-primary-custom {
+    background-color: #ffc107; /* Amarelo solar */
+    border-color: #ffc107;
+    color: #333;
+    font-weight: 600;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 50px; /* Bordas arredondadas */
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-primary-custom:hover {
+    background-color: #e0a800;
+    border-color: #e0a800;
+    transform: translateY(-3px) scale(1.03); /* Efeito de elevação e leve zoom */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 60px;
+    font-weight: 700;
+    color: #2c3e50; /* Azul escuro acinzentado */
+    font-size: 2.2rem; /* Ajustado */
+}
+.section-title::after {
+    content: '';
+    display: block;
+    width: 70px;
+    height: 5px;
+    background-color: #28a745; /* Verde */
+    margin: 12px auto 0;
+    border-radius: 3px;
+}
+
+.icon-box {
+    text-align: center;
+    padding: 35px 25px;
+    border-radius: 12px;
+    background-color: #fff; /* Alterado para branco para mais contraste */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.icon-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(40,167,69,0.15); /* Sombra verde no hover */
+}
+
+.icon-box i {
+    font-size: 2.8rem; /* Ajustado */
+    color: #28a745; /* Verde */
+    margin-bottom: 25px;
+}
+.icon-box h4 {
+    font-size: 1.3rem; /* Ajustado */
+}
+
+#simulator {
+    background-color: #f4f7f6; /* Tom de cinza mais suave */
+    padding: 80px 0;
+}
+
+.simulator-card {
+    background-color: white;
+    padding: 30px; /* Ajustado */
+    border-radius: 20px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+}
+
+.form-control, .form-select { /* Estilo unificado */
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 12px 15px; /* Aumentado padding */
+    font-size: 1rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+}
+
+.btn-success-custom {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    font-weight: 600;
+    padding: 14px 35px; /* Aumentado padding */
+    font-size: 1.15rem; /* Aumentado */
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+.btn-success-custom:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+#simulationResult {
+    margin-top: 40px;
+    padding: 25px;
+    background-color: #e6f7ef; /* Verde mais suave */
+    border-left: 7px solid #28a745;
+    border-radius: 10px;
+}
+#simulationResult h4 {
+    color: #1e7e34; /* Verde mais escuro para título */
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+.chart-container {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: relative; /* Adicionado para melhor controle do canvas filho */
+    height: 350px; /* Altura definida para estabilizar o gráfico */
+}
+
+.testimonial-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    margin-bottom: 25px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.testimonial-card img {
+    width: 70px; /* Ajustado */
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 3px solid #28a745; /* Borda verde */
+}
+.testimonial-card p.quote { /* Classe específica para a citação */
+    font-style: italic;
+    color: #555;
+    flex-grow: 1; /* Faz a citação ocupar espaço disponível */
+    margin-bottom: 15px;
+}
+.testimonial-card .name {
+    font-weight: 700; /* Aumentado peso */
+    color: #28a745;
+    margin-top: auto; /* Empurra para baixo se houver espaço */
+}
+.testimonial-card .location { /* Nova classe para localização */
+    font-size: 0.9rem;
+    color: #777;
+}
+
+#contact {
+    background-color: #f4f7f6; /* Mesmo tom do simulador */
+}
+.contact-info i {
+    font-size: 1.4rem; /* Ajustado */
+    color: #28a745;
+    margin-right: 12px;
+    vertical-align: middle;
+    width: 30px; /* Largura fixa para alinhamento */
+    text-align: center;
+}
+.contact-info p {
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+}
+
+footer {
+    background-color: #2c3e50; /* Azul escuro acinzentado */
+    color: #e0e0e0; /* Cinza claro para melhor leitura */
+    padding: 50px 0;
+    text-align: center;
+}
+footer a {
+    color: #ffc107; /* Amarelo solar */
+    text-decoration: none;
+    font-weight: 500;
+}
+footer a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+footer .social-icons a {
+    color: white;
+    margin: 0 12px;
+    font-size: 1.7rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+footer .social-icons a:hover {
+    color: #ffc107;
+    transform: scale(1.1);
+}
+footer p {
+    margin-bottom: 0.5rem;
+}
+
+/* Animações sutis */
+.fade-in {
+    opacity: 0;
+    transform: translateY(25px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Melhorias de Responsividade */
+
+/* Telas Médias (Tablets, Notebooks menores) */
+@media (min-width: 768px) {
+    .hero-section h1 {
+        font-size: 3.8rem;
+    }
+    .hero-section p {
+        font-size: 1.3rem;
+    }
+    .simulator-card {
+        padding: 40px;
+    }
+    .section-title {
+        font-size: 2.5rem;
+    }
+}
+
+/* Telas Grandes (Desktops) */
+@media (min-width: 992px) {
+    .hero-section {
+        padding: 150px 0;
+        min-height: 90vh;
+    }
+    .hero-section h1 {
+        font-size: 4.5rem;
+    }
+     .nav-link {
+        padding: 0.75rem 1.25rem;
+    }
+}
+
+/* Ajustes específicos para telas menores */
+@media (max-width: 767.98px) {
+    .hero-section {
+        min-height: 70vh; /* Altura menor para mobile */
+        padding: 80px 0;
+    }
+    .section-title {
+        font-size: 1.9rem; /* Título menor em mobile */
+        margin-bottom: 40px;
+    }
+    .icon-box {
+        padding: 25px 20px;
+    }
+    .icon-box i {
+        font-size: 2.5rem;
+    }
+    .icon-box h4 {
+        font-size: 1.15rem;
+    }
+    .simulator-card {
+        padding: 25px;
+    }
+    .btn-success-custom, .btn-primary-custom {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    .testimonial-card {
+        margin-bottom: 20px; /* Garante espaçamento entre cards empilhados */
+    }
+    .contact-info p {
+        font-size: 0.95rem;
+    }
+     footer {
+        padding: 30px 0;
+    }
+    footer .social-icons a {
+        font-size: 1.5rem;
+        margin: 0 8px;
+    }
+    .chart-container {
+        height: 300px; /* Altura ajustada para mobile */
+    }
+}
+ @media (max-width: 575.98px) {
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+    .hero-section h1 {
+        font-size: 2.2rem;
+    }
+    .hero-section p {
+        font-size: 1rem;
+    }
+    .chart-container {
+        height: 250px; /* Altura ainda menor para telas bem pequenas */
+    }
+}
