@@ -642,6 +642,8 @@ def products():
     all_products = Product.query.order_by(Product.category, Product.name).all()
     return render_template('admin/products.html', title="Catálogo de Produtos", products=all_products)
 
+
+
 @bp.route('/admin/product/add', methods=['GET', 'POST'])
 @login_required
 def add_product():
@@ -659,6 +661,41 @@ def add_product():
         flash('Produto adicionado ao catálogo com sucesso!', 'success')
         return redirect(url_for('main.products'))
     return render_template('admin/product_form.html', title="Novo Produto", form=form)
+
+
+
+
+
+# --- ADICIONE ESTA NOVA ROTA ---
+@bp.route('/admin/product/<int:product_id>/delete', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    
+    # --- Verificação de Segurança ---
+    # Verifica se o produto está em algum ProposalItem
+    items_using_product = ProposalItem.query.filter_by(product_id=product.id).first()
+    
+    if items_using_product:
+        flash(f'O produto "{product.name}" não pode ser excluído, pois já está sendo usado na proposta "{items_using_product.proposal.title}".', 'danger')
+        return redirect(url_for('main.products'))
+    
+    # Se não estiver sendo usado, pode excluir
+    db.session.delete(product)
+    db.session.commit()
+    flash(f'Produto "{product.name}" excluído com sucesso!', 'success')
+    return redirect(url_for('main.products'))
+
+
+
+
+
+
+
+
+
+
+
 
 
 # --- ROTA DE GERAÇÃO DE PDF (VERSÃO FINAL E COMPLETA) ---

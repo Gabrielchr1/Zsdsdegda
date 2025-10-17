@@ -8,6 +8,14 @@
     </a>
 </div>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 <div class="card shadow-sm">
     <div class="card-body">
         <table class="table table-hover align-middle">
@@ -29,7 +37,18 @@
                     <td>{{ product.manufacturer or '-' }}</td>
                     <td class="text-center">{{ product.power_wp or '-' }}{% if product.power_wp %} Wp{% endif %}</td>
                     <td class="text-center">{{ product.warranty_years or '-' }}{% if product.warranty_years %} anos{% endif %}</td>
-                    <td><a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('main.delete_product', product_id=product.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.');">
+                                <button type.submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        </td>
                 </tr>
                 {% else %}
                 <tr><td colspan="6" class="text-center p-4 text-muted">Nenhum produto cadastrado no catálogo.</td></tr>
