@@ -9,3 +9,4 @@ migrations/
 senhaadmin.txt
 rascunho.txt
 instance/
+config.py

@@ -19,13 +19,12 @@
     <div class="col-lg-4">
         <div class="card shadow-sm mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Resumo Técnico-Financeiro</h5>
+                <h5 class="mb-0">Resumo</h5>
                 <a href="#" class="btn btn-sm btn-outline-secondary" title="Editar Proposta"><i class="fas fa-edit"></i></a>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-solar-panel text-muted me-2"></i>Potência do Sistema:</span> <strong>{{ "%.2f"|format(proposal.system_power_kwp or 0) }} kWp</strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-bolt text-muted me-2"></i>Inversor Recomendado:</span> <strong>{{ proposal.recommended_inverter_kw or 0 }} kW</strong></li>
                     <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-th text-muted me-2"></i>Qtd. de Módulos:</span> <strong>{{ proposal.panel_quantity or 0 }}</strong></li>
                     <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-piggy-bank text-muted me-2"></i>Economia Anual:</span> <strong class="text-success">R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong></li>
                     <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-undo-alt text-muted me-2"></i>Payback Estimado:</span> <strong>{{ "%.1f"|format(proposal.payback_years or 0) }} anos</strong></li>
@@ -71,7 +70,6 @@
 <div class="card shadow-sm mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Itens da Proposta</h5>
-        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addItemModal"><i class="fas fa-plus"></i> Adicionar Item do Catálogo</button>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -96,7 +94,7 @@
                         <td class="text-end"><strong>R$ {{ "%.2f"|format(item.total_price or 0) }}</strong></td>
                         <td class="text-end">
                             <form action="{{ url_for('main.delete_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                
                             </form>
                         </td>
                     </tr>

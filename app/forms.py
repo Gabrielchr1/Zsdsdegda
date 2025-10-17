@@ -42,14 +42,18 @@ class ProposalForm(FlaskForm):
     grid_type = SelectField('Tipo de Rede', choices=[('monofasica', 'Monofásica'), ('bifasica', 'Bifásica'), ('trifasica', 'Trifásica')], validators=[DataRequired()])
     
     solar_irradiance = FloatField('Irradiação Solar Média (Hsp)', render_kw={'readonly': True})
-    panel_power_wp = IntegerField('Potência do Painel (Wp)', default=550, validators=[Optional()])
-    total_investment = FloatField('Investimento Total (R$)')
     notes = TextAreaField('Observações')
     
-    # --- CAMPOS CALCULADOS AUTOMATICAMENTE ---
-    system_power_kwp = HiddenField('Potência do Sistema (kWp)')
-    panel_quantity = HiddenField('Quantidade de Painéis')
-    recommended_inverter_kw = HiddenField('Inversor Recomendado (kW)')
+    # --- CAMPO NOVO PARA O "CARRINHO" ---
+    # Este campo receberá o JSON dos itens do admin.js
+    proposal_items_json = HiddenField('Itens JSON')
+
+    # --- CAMPOS REMOVIDOS ---
+    # panel_power_wp (agora virá dos produtos)
+    # total_investment (será a soma dos itens)
+    # system_power_kwp (calculado a partir dos painéis)
+    # panel_quantity (calculado a partir dos painéis)
+    # recommended_inverter_kw (calculado a partir do inversor)
     
     submit = SubmitField('Salvar Proposta')
 
@@ -118,6 +122,6 @@ class ProductForm(FlaskForm):
         ('Outros', 'Outros')
     ])
     manufacturer = StringField('Fabricante')
-    power_wp = IntegerField('Potência (Wp)', validators=[Optional()])
+    power_wp = IntegerField('Potência', validators=[Optional()])
     warranty_years = IntegerField('Garantia (Anos)', validators=[Optional()])
     submit = SubmitField('Salvar Produto')

@@ -14,11 +14,9 @@
 
 <div class="card shadow-sm">
     <div class="card-body p-4">
-        <form method="POST" action="" novalidate>
+        <form method="POST" action="" novalidate id="proposalCreationForm">
             {{ form.hidden_tag() }}
-            {{ form.system_power_kwp }}
-            {{ form.panel_quantity }}
-            {{ form.recommended_inverter_kw }}
+            {{ form.proposal_items_json(id="proposal_items_json") }}
 
             <h4 class="text-muted fw-light mb-3">Dados Gerais da Proposta</h4>
             <div class="row">
@@ -59,6 +57,10 @@
                     {{ form.grid_type(class="form-select") }}
                 </div>
                 <div class="col-md-4 mb-3">
+                    {{ form.concessionaria.label(class="form-label") }}
+                    {{ form.concessionaria(class="form-select", id="concessionaria") }}
+                    </div>
+                <div class="col-md-4 mb-3">
                     <label class="form-label">Irradiação Solar (Hsp)</label>
                     <div class="input-group">
                         {{ form.solar_irradiance(class="form-control", id="solar_irradiance") }}
@@ -70,29 +72,37 @@
             </div>
             
             <hr class="form-section-divider">
-            <h4 class="text-muted fw-light mb-3">Dimensionamento Automático</h4>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    {{ form.panel_power_wp.label(class="form-label") }}
-                    <div class="input-group">
-                        {{ form.panel_power_wp(class="form-control", id="panel_power_wp") }}
-                        <span class="input-group-text">Wp</span>
-                    </div>
-                </div>
-                <div class="col-md-8 d-flex align-items-end mb-3">
-                    <button type="button" class="btn btn-primary w-100" id="calculateSystemBtn">
-                        <i class="fas fa-calculator me-2"></i>Calcular Sistema Ideal
+            <h4 class="text-muted fw-light mb-3">Itens da Proposta</h4>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Itens do Sistema</h5>
+                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                        <i class="fas fa-plus"></i> Adicionar Item do Catálogo
                     </button>
                 </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th class="text-center">Qtd.</th>
+                                    <th class="text-end">Preço Unit.</th>
+                                    <th class="text-end">Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="items_table_body">
+                                <tr><td colspan="5" class="text-center text-muted p-4">Nenhum item adicionado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
             <hr class="form-section-divider">
             <h4 class="text-muted fw-light mb-3">Detalhes Financeiros e Observações</h4>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    {{ form.total_investment.label(class="form-label") }}
-                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.total_investment(class="form-control", placeholder="Preenchido após cálculo ou manual") }}</div>
-                </div>
                 <div class="col-md-6 mb-3">
                     {{ form.public_lighting_fee.label(class="form-label") }}
                     <div class="input-group"><span class="input-group-text">R$</span>{{ form.public_lighting_fee(class="form-control", placeholder="Ex: 25.50") }}</div>
@@ -126,21 +136,41 @@
     </div></div>
 </div>
 
-<div class="modal fade" id="recommendationModal" tabindex="-1" aria-labelledby="recommendationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title" id="recommendationModalLabel"><i class="fas fa-check-circle text-success me-2"></i>Sistema Recomendado</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <p>Com base nos dados fornecidos, esta é a nossa sugestão de sistema:</p>
-        <ul class="list-group">
-          <li class="list-group-item d-flex justify-content-between align-items-center">Potência do Sistema <span class="badge bg-primary rounded-pill fs-6" id="result-system-power">--</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Quantidade de Módulos <span class="badge bg-primary rounded-pill fs-6" id="result-panel-qty">--</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Potência do Inversor <span class="badge bg-primary rounded-pill fs-6" id="result-inverter">--</span></li>
-        </ul>
-        <div class="alert alert-info mt-3 small"><strong>Atenção:</strong> Os valores calculados foram preenchidos nos campos ocultos do formulário e serão salvos com a proposta.</div>
-      </div>
-      <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button></div>
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="modalItemForm" novalidate>
+                {{ item_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Adicionar Item do Catálogo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ item_form.product.label(class="form-label") }}
+                        {{ item_form.product(class="form-select", id="item_form_product") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            {{ item_form.quantity.label(class="form-label") }}
+                            {{ item_form.quantity(class="form-control", id="item_form_quantity") }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            {{ item_form.unit_price.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                {{ item_form.unit_price(class="form-control", id="item_form_unit_price") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="addItemBtn">Adicionar Item</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 </div>
+
 {% endblock %}
