@@ -418,3 +418,4 @@ document.addEventListener("DOMContentLoaded", function() {
     } // Fim do if(lineChartCanvas)
 
 }); // Fim do DOMContentLoaded
+// Fim do DOMContentLoaded
