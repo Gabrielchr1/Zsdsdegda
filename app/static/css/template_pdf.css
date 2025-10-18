@@ -3,7 +3,7 @@
 /* --- Variáveis de Cor e Configurações Globais --- */
 :root {
     --primary-color: #2950ff; /* Azul Principal */
-    --danger-color: #dc3545;  /* Vermelho para Investimento */
+    --danger-color: #199919;  /* Vermelho para Investimento */
     --success-color: #2950ff; /* Verde para Economia */
     --dark-text: #2c3e50;    /* Texto Escuro Principal */
     --light-text: #576574;   /* Texto Cinza Claro */
