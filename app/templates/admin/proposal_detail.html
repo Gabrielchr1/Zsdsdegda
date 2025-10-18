@@ -12,34 +12,58 @@
 </div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}<div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show">{{ messages[0][1] }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endif %}
+    {% if messages %}
+        {% for category, message in messages %}
+             <div class="alert alert-{{ category }} alert-dismissible fade show">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        {% endfor %}
+    {% endif %}
 {% endwith %}
+
 
 <div class="row">
     <div class="col-lg-4">
         <div class="card shadow-sm mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Resumo</h5>
+                <h5 class="mb-0">Resumo Técnico-Financeiro</h5>
                 <a href="#" class="btn btn-sm btn-outline-secondary" title="Editar Proposta"><i class="fas fa-edit"></i></a>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-solar-panel text-muted me-2"></i>Potência do Sistema:</span> <strong>{{ "%.2f"|format(proposal.system_power_kwp or 0) }} kWp</strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-th text-muted me-2"></i>Qtd. de Módulos:</span> <strong>{{ proposal.panel_quantity or 0 }}</strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-piggy-bank text-muted me-2"></i>Economia Anual:</span> <strong class="text-success">R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-undo-alt text-muted me-2"></i>Payback Estimado:</span> <strong>{{ "%.1f"|format(proposal.payback_years or 0) }} anos</strong></li>
-                    <li class="list-group-item d-flex justify-content-between"><span><i class="fas fa-file-invoice-dollar text-muted me-2"></i>Investimento:</span> <strong class="text-danger">R$ {{ "{:,.2f}".format(proposal.total_investment or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-solar-panel text-muted me-2"></i>Potência Sistema:</span>
+                        <strong>{{ "%.2f"|format(proposal.system_power_kwp or 0) }} kWp</strong>
+                    </li>
+                     <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-bolt text-muted me-2"></i>Inversor Rec.:</span>
+                        <strong>{{ "%.1f"|format(proposal.recommended_inverter_kw or 0) }} kW</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-th text-muted me-2"></i>Qtd. Módulos:</span>
+                        <strong>{{ proposal.panel_quantity or 0 }}</strong>
+                         {% if proposal.panel_power_wp %}<small class="text-muted ms-1">({{ proposal.panel_power_wp }} Wp)</small>{% endif %}
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-piggy-bank text-muted me-2"></i>Economia Anual:</span>
+                        <strong class="text-success">R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-undo-alt text-muted me-2"></i>Payback Estimado:</span>
+                        <strong>{{ "%.1f"|format(proposal.payback_years or 0) }} anos</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-file-invoice-dollar text-muted me-2"></i>Investimento:</span>
+                        <strong class="text-danger">R$ {{ "{:,.2f}".format(proposal.total_investment or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</strong>
+                    </li>
                 </ul>
             </div>
         </div>
-        </div>
+    </div>
 
     <div class="col-lg-8">
         <div class="card shadow-sm mb-4">
             <div class="card-header"><h5 class="mb-0">Detalhamento de Gastos e Economia</h5></div>
             <div class="card-body">
-                <table class="table table-bordered">
-                    <thead class="table-light">
+                <table class="table table-bordered table-sm"> <thead class="table-light">
                         <tr>
                             <th>Descrição</th>
                             <th class="text-center">Sem Energia Solar</th>
@@ -51,7 +75,7 @@
                         {% set old_annual_bill = old_monthly_bill * 12 %}
                         {% set new_annual_bill = old_annual_bill - (proposal.estimated_savings_per_year or 0) %}
                         <tr>
-                            <td><strong>Gasto Anual com Energia</strong></td>
+                            <td><strong>Gasto Anual c/ Energia</strong></td>
                             <td class="text-center text-danger">R$ {{ "{:,.2f}".format(old_annual_bill) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</td>
                             <td class="text-center text-success">R$ {{ "{:,.2f}".format(new_annual_bill) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</td>
                         </tr>
@@ -76,11 +100,12 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Produto</th><th>Fabricante</th>
-                        <th class="text-center">Potência</th><th class="text-center">Garantia</th>
-                        <th class="text-center">Qtd.</th><th class="text-end">Preço Unit.</th>
-                        <th class="text-end">Total</th><th></th>
-                    </tr>
+                        <th>Produto</th>
+                        <th>Fabricante</th>
+                        <th class="text-center">Potência</th>
+                        <th class="text-center">Garantia</th>
+                        <th class="text-center">Qtd.</th>
+                        <th></th> </tr>
                 </thead>
                 <tbody>
                     {% for item in proposal.items %}
@@ -90,16 +115,13 @@
                         <td class="text-center">{{ item.product.power_wp or '-' }}{% if item.product.power_wp %} Wp{% endif %}</td>
                         <td class="text-center">{{ item.product.warranty_years or '-' }}{% if item.product.warranty_years %} anos{% endif %}</td>
                         <td class="text-center">{{ item.quantity }}</td>
-                        <td class="text-end">R$ {{ "%.2f"|format(item.unit_price or 0) }}</td>
-                        <td class="text-end"><strong>R$ {{ "%.2f"|format(item.total_price or 0) }}</strong></td>
                         <td class="text-end">
-                            <form action="{{ url_for('main.delete_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
-                                
+                            <form action="{{ url_for('main.delete_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
                             </form>
                         </td>
                     </tr>
                     {% else %}
-                    <tr><td colspan="8" class="text-center text-muted p-4">Nenhum item adicionado a esta proposta.</td></tr>
+                     <tr><td colspan="6" class="text-center text-muted p-4">Nenhum item adicionado a esta proposta.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -112,18 +134,26 @@
         <div class="modal-content">
             <form action="{{ url_for('main.add_item', proposal_id=proposal.id) }}" method="POST" novalidate>
                 {{ item_form.hidden_tag() }}
-                <div class="modal-header"><h5 class="modal-title" id="addItemModalLabel">Adicionar Item do Catálogo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <div class="mb-3">{{ item_form.product.label(class="form-label") }}{{ item_form.product(class="form-select") }}</div>
-                    <div class="row">
-                        <div class="col-6 mb-3">{{ item_form.quantity.label(class="form-label") }}{{ item_form.quantity(class="form-control") }}</div>
-                        <div class="col-6 mb-3">
-                            {{ item_form.unit_price.label(class="form-label") }}
-                            <div class="input-group"><span class="input-group-text">R$</span>{{ item_form.unit_price(class="form-control") }}</div>
-                        </div>
-                    </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Adicionar Item do Catálogo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>{{ item_form.submit(class="btn btn-success") }}</div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ item_form.product.label(class="form-label") }}
+                        {{ item_form.product(class="form-select") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            {{ item_form.quantity.label(class="form-label") }}
+                            {{ item_form.quantity(class="form-control") }}
+                        </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ item_form.submit(class="btn btn-success") }}
+                </div>
             </form>
         </div>
     </div>

@@ -22,7 +22,6 @@ class ProposalItemForm(FlaskForm):
     """Formulário para adicionar itens a uma Proposta a partir do catálogo."""
     product = QuerySelectField('Produto do Catálogo', query_factory=product_query, get_label='name', allow_blank=False)
     quantity = IntegerField('Quantidade', default=1, validators=[DataRequired(), NumberRange(min=1)])
-    unit_price = FloatField('Preço Unitário (R$)', validators=[DataRequired(), NumberRange(min=0)], description="Preencha para substituir o preço padrão do produto.")
     submit = SubmitField('Adicionar Item')
 
 
@@ -33,10 +32,10 @@ class ProposalForm(FlaskForm):
     valid_until = DateField('Válida Até', format='%Y-%m-%d', validators=[Optional()])
     
     kwh_price = FloatField('Valor da Tarifa de Energia (R$/kWh)', validators=[Optional()])
-    public_lighting_fee = FloatField('Taxa de Iluminação Pública (R$)', validators=[Optional()])
+    public_lighting_fee = FloatField('Taxa de Iluminação Pública (R$)', validators=[Optional()]) # Este campo será movido no HTML
     concessionaria = QuerySelectField('Concessionária', query_factory=concessionaria_query, get_label='name', allow_blank=True, blank_text='-- Selecione --')
 
-    consumption_input_type = RadioField('Entrada de Consumo', choices=[('kwh', 'Consumo (kWh/mês)'), ('brl', 'Fatura (R$/mês)')], default='kwh')
+    consumption_input_type = RadioField('Entrada de Consumo', choices=[('kwh', 'Consumo (kWh/mês)'), ('brl', 'Fatura (R$/mês)')], default='kwh') # Será movido no HTML
     avg_consumption_kwh = FloatField('Consumo Médio Mensal (kWh)', validators=[Optional()])
     avg_bill_brl = FloatField('Valor Médio da Fatura (R$)', validators=[Optional()])
     grid_type = SelectField('Tipo de Rede', choices=[('monofasica', 'Monofásica'), ('bifasica', 'Bifásica'), ('trifasica', 'Trifásica')], validators=[DataRequired()])
@@ -44,19 +43,15 @@ class ProposalForm(FlaskForm):
     solar_irradiance = FloatField('Irradiação Solar Média (Hsp)', render_kw={'readonly': True})
     notes = TextAreaField('Observações')
     
-    # --- CAMPO NOVO PARA O "CARRINHO" ---
-    # Este campo receberá o JSON dos itens do admin.js
+    # --- CAMPO RE-ADICIONADO ---
+    # Este campo é preenchido manualmente
+    total_investment = FloatField('Investimento Total (R$)', validators=[DataRequired()])
+
+    # --- CAMPO MANTIDO ---
+    # Este campo ainda é preenchido pelo JS (agora sem preços)
     proposal_items_json = HiddenField('Itens JSON')
 
-    # --- CAMPOS REMOVIDOS ---
-    # panel_power_wp (agora virá dos produtos)
-    # total_investment (será a soma dos itens)
-    # system_power_kwp (calculado a partir dos painéis)
-    # panel_quantity (calculado a partir dos painéis)
-    # recommended_inverter_kw (calculado a partir do inversor)
-    
     submit = SubmitField('Salvar Proposta')
-
 
 
 

@@ -219,172 +219,209 @@ def delete_client(client_id):
 @login_required
 def add_proposal(client_id):
     client = Client.query.get_or_404(client_id)
-    form = ProposalForm()
-    item_form = ProposalItemForm() 
+    form = ProposalForm() # Agora com total_investment, sem itens de preço
+    item_form = ProposalItemForm() # Agora sem unit_price
     
     if form.validate_on_submit():
         
-        # --- 1. CARREGAR ITENS DO "CARRINHO" JSON ---
+        # --- 1. CARREGAR ITENS DO "CARRINHO" JSON (SEM PREÇO) ---
         try:
             items_list = json.loads(form.proposal_items_json.data)
             if not items_list:
                 flash('Não é possível criar uma proposta sem itens. Adicione os produtos.', 'danger')
+                # Precisa passar 'concessionaria_form' também no render_template
+                concessionaria_form_modal = ConcessionariaForm()
                 return render_template('admin/proposal_form.html', title="Nova Proposta", 
                                        form=form, client=client, item_form=item_form, 
-                                       concessionaria_form=ConcessionariaForm())
+                                       concessionaria_form=concessionaria_form_modal)
         except json.JSONDecodeError:
             flash('Erro ao processar os itens da proposta.', 'danger')
-            return redirect(request.url)
+            return redirect(request.url) # Recarrega a página
 
-        # --- 2. CALCULAR DADOS DO SISTEMA A PARTIR DOS ITENS (LÓGICA REFINADA) ---
-        
+        # --- 2. CALCULAR DADOS DO SISTEMA A PARTIR DOS ITENS (SEM PREÇO) ---
         calc_system_power_wp = 0  # Potência total em Wp (DC)
         calc_panel_quantity = 0
         calc_panel_power_wp = 0     # Potência do painel individual
-        calc_total_investment = 0
+        # calc_total_investment REMOVIDO daqui
 
         for item_data in items_list:
             try:
+                # Busca o produto no banco de dados
                 product = Product.query.get(int(item_data['product_id']))
                 if not product:
+                    # Pula para o próximo item se o produto não for encontrado
+                    flash(f"Aviso: Produto ID {item_data.get('product_id', 'Inválido')} não encontrado no catálogo.", 'warning')
                     continue 
                 
                 qty = int(item_data['quantity'])
-                price = float(item_data['unit_price'])
-                
-                calc_total_investment += (qty * price)
+                # price = float(item_data['unit_price']) # REMOVIDO
+                # calc_total_investment += (qty * price) # REMOVIDO
 
                 # Se o item é um módulo, some sua potência para o total do sistema (DC)
                 if product.category == 'Módulo' and product.power_wp:
                     calc_system_power_wp += (product.power_wp * qty)
                     calc_panel_quantity += qty
-                    calc_panel_power_wp = product.power_wp # Salva a potência do painel
-                
-                # O inversor não é mais somado. Será calculado abaixo.
-
-            except (ValueError, TypeError):
-                flash(f"Erro ao processar dados do item: {item_data}", 'danger')
-                continue
+                    # Assume um tipo de painel por proposta para salvar a potência individual
+                    if calc_panel_power_wp == 0: 
+                        calc_panel_power_wp = product.power_wp 
+            except (ValueError, TypeError, KeyError):
+                # Captura erros se 'product_id' ou 'quantity' não existirem ou forem inválidos
+                flash(f"Erro ao processar dados inválidos do item: {item_data}. Item ignorado.", 'danger')
+                continue # Pula para o próximo item
 
         # Converte a potência total do sistema de Wp para kWp
         calc_system_power_kwp = calc_system_power_wp / 1000.0
 
-        # CALCULAR O INVERSOR RECOMENDADO (NOVA LÓGICA)
-        # Usamos o DC/AC Ratio que você sugeriu (1.1 a 1.3). Vamos usar 1.2 como um padrão.
+        # CALCULAR O INVERSOR RECOMENDADO (Lógica mantida)
         DC_AC_RATIO = 1.2 
-        calc_inverter_kw = calc_system_power_kwp / DC_AC_RATIO
+        # Garante que não haja divisão por zero se não houver painéis
+        calc_inverter_kw = (calc_system_power_kwp / DC_AC_RATIO) if DC_AC_RATIO != 0 else 0
 
         # --- 3. CALCULAR PRODUÇÃO, ECONOMIA E PAYBACK (LÓGICA REFINADA) ---
         
-        # Parâmetros de cálculo baseados nas suas recomendações
-        PERFORMANCE_RATIO = 0.78  # (PR) Fator de performance realista (78%)
-        AVG_DAYS_PER_MONTH = 365.25 / 12 # Média de dias por mês
+        # Parâmetros de cálculo
+        PERFORMANCE_RATIO = 0.78 
+        AVG_DAYS_PER_MONTH = 365.25 / 12 
 
         monthly_prod_list = []
         total_annual_production = 0
-        
-        # PSH (Horas de Sol Pleno) vem da nossa busca na NASA
-        psh = form.solar_irradiance.data or 4.5 # Usa 4.5 como fallback se a busca falhar
+        psh = form.solar_irradiance.data or 4.5 # Fallback para PSH
 
         if calc_system_power_kwp > 0:
-            # Fórmula Invertida: Produção (kWh/dia) = Potência (kWp) × PSH × PR
             avg_daily_production_kwh = calc_system_power_kwp * psh * PERFORMANCE_RATIO
-            
-            # Geração Média Mensal (kWh)
             avg_monthly_production_kwh = avg_daily_production_kwh * AVG_DAYS_PER_MONTH
-            
-            # Por enquanto, usamos uma média flat. Para sazonalidade, precisaríamos de dados PSH mensais da NASA.
             monthly_prod_list = [round(avg_monthly_production_kwh, 2)] * 12
             total_annual_production = avg_monthly_production_kwh * 12
 
-        # Obter o consumo mensal (seja por kWh ou R$)
-        # Esta lógica já estava correta e a manteremos.
+        # Obter o consumo mensal (lógica mantida)
         consumption_kwh_monthly = form.avg_consumption_kwh.data or 0
-        if form.kwh_price.data and form.kwh_price.data > 0:
+        kwh_price_value = form.kwh_price.data or 0 # Garante que é float ou 0
+        if kwh_price_value > 0:
             if form.consumption_input_type.data == 'brl' and form.avg_bill_brl.data:
-                # Remove a taxa de iluminação pública para achar o consumo real
                 bill_for_consumption = (form.avg_bill_brl.data or 0) - (form.public_lighting_fee.data or 0)
-                consumption_kwh_monthly = bill_for_consumption / form.kwh_price.data
+                # Evita divisão por zero
+                consumption_kwh_monthly = (bill_for_consumption / kwh_price_value) if kwh_price_value else 0
         
-        # Calcular Economia Anual (Esta lógica já é robusta e considera o Fio B)
+        # Calcular Economia Anual (lógica mantida, mas com mais cuidado com valores nulos)
         annual_savings = 0
-        if form.kwh_price.data and form.kwh_price.data > 0:
+        if kwh_price_value > 0:
             grid_cost_kwh = {'monofasica': 30, 'bifasica': 50, 'trifasica': 100}.get(form.grid_type.data, 50)
             total_annual_consumption = consumption_kwh_monthly * 12
-            
-            # O que o sistema gerou menos o custo de disponibilidade
             energia_a_ser_compensada = max(0, total_annual_production - (grid_cost_kwh * 12))
-            
-            # O que foi injetado na rede (geração > consumo)
             energia_injetada = max(0, total_annual_production - total_annual_consumption)
             
-            fio_b_price = form.concessionaria.data.fio_b_price if form.concessionaria.data else 0
+            fio_b_price = 0 # Valor padrão
+            # Verifica se uma concessionária foi selecionada antes de acessar o preço
+            if form.concessionaria.data:
+                 fio_b_price = form.concessionaria.data.fio_b_price or 0
+
             custo_fio_b_anual = energia_injetada * fio_b_price
-            
-            # Economia = (Valor da energia compensada) - (Custo do Fio B)
-            annual_savings = (energia_a_ser_compensada * form.kwh_price.data) - custo_fio_b_anual
+            annual_savings = (energia_a_ser_compensada * kwh_price_value) - custo_fio_b_anual
         
-        # Calcular Payback
+        # Calcular Payback (USA O VALOR MANUAL DO FORMULÁRIO)
         payback_years = None
-        if calc_total_investment > 0 and annual_savings > 0:
-            payback_years = calc_total_investment / annual_savings
+        # Garante que annual_savings é maior que zero para evitar divisão por zero
+        if form.total_investment.data and form.total_investment.data > 0 and annual_savings > 0:
+            payback_years = form.total_investment.data / annual_savings
 
         # --- 4. SALVAR A PROPOSTA PRINCIPAL ---
         new_proposal = Proposal(
+            # Dados do Formulário
             title=form.title.data,
             valid_until=form.valid_until.data,
             consumption_input_type=form.consumption_input_type.data,
             grid_type=form.grid_type.data,
             notes=form.notes.data,
-            client=client,
-            author=current_user,
-            kwh_price=form.kwh_price.data or None,
+            kwh_price=form.kwh_price.data or None, # Usa None se o campo estiver vazio
             public_lighting_fee=form.public_lighting_fee.data or None,
             concessionaria_id=form.concessionaria.data.id if form.concessionaria.data else None,
             avg_consumption_kwh=form.avg_consumption_kwh.data or None,
             avg_bill_brl=form.avg_bill_brl.data or None,
             solar_irradiance=form.solar_irradiance.data or None,
+            total_investment=form.total_investment.data, # Valor manual do formulário
             
-            # Dados calculados a partir dos itens e novas fórmulas
-            total_investment=round(calc_total_investment, 2),
-            system_power_kwp=round(calc_system_power_kwp, 2), # Ex: 9.72
-            panel_quantity=calc_panel_quantity,              # Ex: 18
-            panel_power_wp=calc_panel_power_wp,              # Ex: 540
-            recommended_inverter_kw=round(calc_inverter_kw, 2),# Ex: 8.1 (9.72 / 1.2)
+            # Relacionamentos
+            client=client,
+            author=current_user,
+            
+            # Dados calculados a partir dos itens
+            system_power_kwp=round(calc_system_power_kwp, 2),
+            panel_quantity=calc_panel_quantity,
+            panel_power_wp=calc_panel_power_wp if calc_panel_quantity > 0 else None, # Salva None se não houver painéis
+            recommended_inverter_kw=round(calc_inverter_kw, 2),
             
             # Dados calculados a partir da economia
-            monthly_production_kwh=monthly_prod_list,
-            estimated_savings_per_year=round(annual_savings, 2) if annual_savings > 0 else 0,
-            payback_years=round(payback_years, 1) if payback_years else None
+            monthly_production_kwh=monthly_prod_list if monthly_prod_list else None, # Salva None se não calculou
+            estimated_savings_per_year=round(annual_savings, 2) if annual_savings > 0 else 0, # Salva 0 se não houver economia
+            payback_years=round(payback_years, 1) if payback_years else None # Salva None se não houver payback
         )
 
         db.session.add(new_proposal)
-        db.session.commit() # Commit para obter o new_proposal.id
+        # Commit aqui para que new_proposal tenha um ID para os itens
+        try:
+             db.session.commit() 
+        except Exception as e:
+            db.session.rollback() # Desfaz a adição da proposta se houver erro
+            flash(f'Erro ao salvar a proposta principal: {e}', 'danger')
+            # Precisa passar 'concessionaria_form' também no render_template
+            concessionaria_form_modal = ConcessionariaForm()
+            return render_template('admin/proposal_form.html', title="Nova Proposta", 
+                                   form=form, client=client, item_form=item_form, 
+                                   concessionaria_form=concessionaria_form_modal)
 
-        # --- 5. SALVAR OS ITENS DA PROPOSTA VINCULADOS ---
+
+        # --- 5. SALVAR OS ITENS DA PROPOSTA VINCULADOS (SEM PREÇO) ---
+        items_saved_successfully = True
         for item_data in items_list:
-            qty = int(item_data['quantity'])
-            price = float(item_data['unit_price'])
-            
-            item_db = ProposalItem(
-                quantity=qty,
-                unit_price=price,
-                total_price=qty * price,
-                proposal_id=new_proposal.id,
-                product_id=int(item_data['product_id'])
-            )
-            db.session.add(item_db)
-            
-        db.session.commit() # Commit final com os itens
+            # Verifica se os dados mínimos existem antes de tentar salvar
+            if 'product_id' in item_data and 'quantity' in item_data:
+                try:
+                    qty = int(item_data['quantity'])
+                    prod_id = int(item_data['product_id'])
+                    
+                    # Verifica se o produto realmente existe antes de criar o item
+                    product_exists = Product.query.get(prod_id)
+                    if product_exists:
+                        item_db = ProposalItem(
+                            quantity=qty,
+                            # unit_price e total_price REMOVIDOS
+                            proposal_id=new_proposal.id, # Usa o ID da proposta recém-criada
+                            product_id=prod_id
+                        )
+                        db.session.add(item_db)
+                    else:
+                         flash(f"Item com ID de produto inválido ({prod_id}) não foi salvo.", 'warning')
+                         items_saved_successfully = False # Marca que houve um problema
+                except (ValueError, TypeError):
+                     flash(f"Item com dados inválidos {item_data} não foi salvo.", 'warning')
+                     items_saved_successfully = False # Marca que houve um problema
+            else:
+                 flash(f"Item incompleto {item_data} não foi salvo.", 'warning')
+                 items_saved_successfully = False # Marca que houve um problema
+        
+        # Commit final dos itens
+        try:
+             db.session.commit() 
+        except Exception as e:
+            db.session.rollback() # Desfaz a adição dos itens
+            flash(f'Erro ao salvar os itens da proposta: {e}. A proposta foi criada, mas sem itens.', 'danger')
+            # Mesmo com erro nos itens, redireciona para o detalhe para o usuário ver
+            return redirect(url_for('main.proposal_detail', proposal_id=new_proposal.id))
 
-        flash('Proposta criada com sucesso! Cálculos de alta precisão aplicados.', 'success')
+        # Mensagem final
+        if items_saved_successfully:
+             flash('Proposta e todos os itens criados com sucesso!', 'success')
+        else:
+             flash('Proposta criada, mas alguns itens não puderam ser salvos. Verifique os avisos.', 'warning')
+             
         return redirect(url_for('main.proposal_detail', proposal_id=new_proposal.id))
     
-    # Se for GET, renderiza o formulário
-    concessionaria_form = ConcessionariaForm()
+    # --- Se for método GET ---
+    # Cria uma instância do ConcessionariaForm para passar para o modal
+    concessionaria_form_modal = ConcessionariaForm()
     return render_template('admin/proposal_form.html', title="Nova Proposta", 
                            form=form, client=client, item_form=item_form, 
-                           concessionaria_form=concessionaria_form)
+                           concessionaria_form=concessionaria_form_modal)
 
 
 
@@ -477,33 +514,54 @@ def delete_proposal(proposal_id):
 @bp.route('/admin/proposal/<int:proposal_id>/add_item', methods=['POST'])
 @login_required
 def add_item(proposal_id):
+    # Busca a proposta ou retorna erro 404
     proposal = Proposal.query.get_or_404(proposal_id)
-    form = ProposalItemForm()
+    # Usa o formulário atualizado (que não deve mais ter unit_price)
+    form = ProposalItemForm() 
+    
+    # Verifica se o formulário passou na validação (ex: quantidade > 0)
     if form.validate_on_submit():
-        # Usa o novo campo 'product' em vez de 'description'
-        product = form.product.data
+        # Pega os dados do formulário (objeto 'product' e 'quantity')
+        product = form.product.data 
         quantity = form.quantity.data
-        unit_price = form.unit_price.data
+        # unit_price foi removido do formulário e do modelo
 
+        # Cria o novo ProposalItem sem informações de preço
         item = ProposalItem(
             quantity=quantity,
-            unit_price=unit_price,
-            total_price=quantity * unit_price,
-            proposal_id=proposal.id,
-            product_id=product.id # Salva a conexão com o produto do catálogo
+            proposal_id=proposal.id, # Vincula ao ID da proposta atual
+            product_id=product.id # Vincula ao ID do produto selecionado no catálogo
         )
+        
+        # Adiciona o novo item à sessão do banco de dados
         db.session.add(item)
         
-        # Recalcula o valor total da proposta
-        # Usamos 'proposal.items.all()' pois é uma relação 'dynamic'
-        # proposal.total_investment = sum(p_item.total_price for p_item in proposal.items.all())
-        db.session.commit()
-        flash('Item adicionado com sucesso!', 'success')
-    else:
-        # Pega o primeiro erro de validação para mostrar ao usuário
-        error_messages = [error for field, errors in form.errors.items() for error in errors]
-        flash(f'Erro ao adicionar item: {error_messages[0]}' if error_messages else 'Verifique os dados.', 'danger')
+        # Não precisa mais recalcular o total_investment aqui, pois ele agora é manual
         
+        try:
+            # Tenta salvar as mudanças no banco de dados
+            db.session.commit()
+            flash('Item adicionado com sucesso!', 'success')
+        except Exception as e:
+            # Se der erro ao salvar, desfaz a adição e mostra o erro
+            db.session.rollback()
+            flash(f'Erro ao salvar o item: {e}', 'danger')
+
+    else:
+        # Se o formulário não for válido (ex: quantidade inválida)
+        # Monta uma mensagem de erro mais detalhada
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                # Pega o rótulo do campo, se disponível, senão o nome do campo
+                label = getattr(getattr(form, field), 'label', None)
+                field_name = label.text if label else field.capitalize()
+                error_messages.append(f"{field_name}: {error}")
+        
+        # Exibe a mensagem de erro de validação
+        flash(f'Erro ao adicionar item: {"; ".join(error_messages)}' if error_messages else 'Verifique os dados do item.', 'danger')
+        
+    # Sempre redireciona de volta para a página de detalhes da proposta
     return redirect(url_for('main.proposal_detail', proposal_id=proposal.id))
 
 

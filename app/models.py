@@ -107,8 +107,10 @@ class Proposal(db.Model):
 class ProposalItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, default=1)
-    unit_price = db.Column(db.Float)
-    total_price = db.Column(db.Float)
+    
+    # --- CAMPOS REMOVIDOS ---
+    # unit_price = db.Column(db.Float)
+    # total_price = db.Column(db.Float)
 
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     product = db.relationship('Product')

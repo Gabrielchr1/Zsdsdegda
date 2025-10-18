@@ -19,26 +19,24 @@
             {{ form.proposal_items_json(id="proposal_items_json") }}
 
             <h4 class="text-muted fw-light mb-3">Dados Gerais da Proposta</h4>
-            <div class="row">
-                <div class="col-md-8 mb-3">
-                    {{ form.title.label(class="form-label") }}
+            <div class="row align-items-center"> 
+                <div class="col-md-5 mb-3"> {{ form.title.label(class="form-label") }}
                     {{ form.title(class="form-control", placeholder="Ex: Proposta Residencial Família Silva") }}
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     {{ form.valid_until.label(class="form-label") }}
                     {{ form.valid_until(class="form-control", type="date") }}
+                </div>
+                <div class="col-md-4 mb-3"> <label class="form-label">Forma de Análise</label>
+                    <div class="d-flex pt-2">
+                        {% for subfield in form.consumption_input_type %}<div class="form-check me-3">{{ subfield(class="form-check-input") }} {{ subfield.label(class="form-check-label") }}</div>{% endfor %}
+                    </div>
                 </div>
             </div>
 
             <hr class="form-section-divider">
             <h4 class="text-muted fw-light mb-3">Dados de Consumo e Tarifas</h4>
             <div class="row align-items-end">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Forma de Análise</label>
-                    <div class="d-flex pt-2">
-                        {% for subfield in form.consumption_input_type %}<div class="form-check me-3">{{ subfield(class="form-check-input") }} {{ subfield.label(class="form-check-label") }}</div>{% endfor %}
-                    </div>
-                </div>
                 <div class="col-md-4 mb-3">
                     <div id="kwh-input-group">{{ form.avg_consumption_kwh.label(class="form-label") }}{{ form.avg_consumption_kwh(class="form-control", id="avg_consumption_kwh") }}</div>
                     <div id="brl-input-group" class="d-none">
@@ -50,6 +48,9 @@
                     {{ form.kwh_price.label(class="form-label") }}
                     {{ form.kwh_price(class="form-control", id="kwh_price", placeholder="Ex: 0.95") }}
                 </div>
+                <div class="col-md-4 mb-3"> {{ form.public_lighting_fee.label(class="form-label") }}
+                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.public_lighting_fee(class="form-control", placeholder="Ex: 25.50") }}</div>
+                </div>
             </div>
             <div class="row align-items-end">
                 <div class="col-md-4 mb-3">
@@ -59,7 +60,7 @@
                 <div class="col-md-4 mb-3">
                     {{ form.concessionaria.label(class="form-label") }}
                     {{ form.concessionaria(class="form-select", id="concessionaria") }}
-                    </div>
+                </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Irradiação Solar (Hsp)</label>
                     <div class="input-group">
@@ -70,10 +71,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="form-section-divider">
             <h4 class="text-muted fw-light mb-3">Itens da Proposta</h4>
-            
             <div class="card shadow-sm mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Itens do Sistema</h5>
@@ -88,13 +88,10 @@
                                 <tr>
                                     <th>Produto</th>
                                     <th class="text-center">Qtd.</th>
-                                    <th class="text-end">Preço Unit.</th>
-                                    <th class="text-end">Total</th>
-                                    <th></th>
-                                </tr>
+                                    <th></th> </tr>
                             </thead>
                             <tbody id="items_table_body">
-                                <tr><td colspan="5" class="text-center text-muted p-4">Nenhum item adicionado.</td></tr>
+                                <tr><td colspan="3" class="text-center text-muted p-4">Nenhum item adicionado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -104,10 +101,10 @@
             <h4 class="text-muted fw-light mb-3">Detalhes Financeiros e Observações</h4>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    {{ form.public_lighting_fee.label(class="form-label") }}
-                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.public_lighting_fee(class="form-control", placeholder="Ex: 25.50") }}</div>
+                    {{ form.total_investment.label(class="form-label") }}
+                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.total_investment(class="form-control", placeholder="Valor total do projeto") }}</div>
                 </div>
-            </div>
+                </div>
             <div class="mb-3">
                 {{ form.notes.label(class="form-label") }}
                 {{ form.notes(class="form-control", rows=3) }}
@@ -123,18 +120,7 @@
 </div>
 
 <div class="modal fade" id="addConcessionariaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog"><div class="modal-content">
-        <form id="addConcessionariaForm" action="{{ url_for('main.add_concessionaria') }}" method="POST" novalidate>
-            {{ concessionaria_form.hidden_tag() }}
-            <div class="modal-header"><h5 class="modal-title">Adicionar Nova Concessionária</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <div class="mb-3">{{ concessionaria_form.name.label(class="form-label") }}{{ concessionaria_form.name(class="form-control") }}</div>
-                <div class="mb-3">{{ concessionaria_form.fio_b_price.label(class="form-label") }}{{ concessionaria_form.fio_b_price(class="form-control", placeholder="Ex: 0.32") }}</div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>{{ concessionaria_form.submit(class="btn btn-success") }}</div>
-        </form>
-    </div></div>
-</div>
+    </div>
 
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -151,18 +137,11 @@
                         {{ item_form.product(class="form-select", id="item_form_product") }}
                     </div>
                     <div class="row">
-                        <div class="col-6 mb-3">
+                        <div class="col-12 mb-3">
                             {{ item_form.quantity.label(class="form-label") }}
                             {{ item_form.quantity(class="form-control", id="item_form_quantity") }}
                         </div>
-                        <div class="col-6 mb-3">
-                            {{ item_form.unit_price.label(class="form-label") }}
-                            <div class="input-group">
-                                <span class="input-group-text">R$</span>
-                                {{ item_form.unit_price(class="form-control", id="item_form_unit_price") }}
-                            </div>
                         </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -172,5 +151,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
