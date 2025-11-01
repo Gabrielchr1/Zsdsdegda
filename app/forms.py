@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextA
 from wtforms.validators import DataRequired, Email, Length, Optional, NumberRange
 from wtforms_sqlalchemy.fields import QuerySelectField # <-- NOVA IMPORTAÇÃO
 from app.models import Concessionaria, Product
+from flask_wtf.file import FileField, FileAllowed
 
 
 
@@ -46,6 +47,22 @@ class ProposalForm(FlaskForm):
     # --- CAMPO RE-ADICIONADO ---
     # Este campo é preenchido manualmente
     total_investment = FloatField('Investimento Total (R$)', validators=[DataRequired()])
+
+    # --- NOVOS CAMPOS DE PAGAMENTO ---
+    credit_card_installments = IntegerField('Parcelas Cartão', validators=[Optional()])
+    credit_card_interest_rate = FloatField('Taxa Cartão (%)', validators=[Optional()])
+    
+    financing_installments = IntegerField('Parcelas Financiamento', validators=[Optional()])
+    financing_interest_rate = FloatField('Taxa Financiamento (%)', validators=[Optional()])
+
+
+    kwh_adjustment = IntegerField('Ajuste Geração (kWh)', 
+                                  validators=[Optional()], 
+                                  default=0,
+                                  render_kw={'placeholder': 'Ex: 10 ou -10'})
+
+
+
 
     # --- CAMPO MANTIDO ---
     # Este campo ainda é preenchido pelo JS (agora sem preços)
@@ -109,14 +126,24 @@ class ConcessionariaForm(FlaskForm):
 class ProductForm(FlaskForm):
     """Formulário para adicionar/editar Produtos."""
     name = StringField('Nome do Produto/Serviço', validators=[DataRequired()])
+    
+    # --- LISTA DE CATEGORIAS ATUALIZADA ---
+    # O primeiro item é o valor salvo no DB, o segundo é o exibido.
     category = SelectField('Categoria', choices=[
-        ('Módulo', 'Módulo Fotovoltaico'),
+        ('Módulo Fotovoltaico', 'Módulo Fotovoltaico'),
         ('Inversor', 'Inversor'),
-        ('Estrutura', 'Estrutura de Montagem'),
-        ('Mão de Obra', 'Mão de Obra'),
-        ('Outros', 'Outros')
+        ('Micro-Inversor', 'Micro-Inversor'), # <-- Valor 'Micro-Inversor'
+        ('Híbrido', 'Híbrido')              # <-- Valor 'Híbrido' (com acento)
     ])
+    
     manufacturer = StringField('Fabricante')
-    power_wp = IntegerField('Potência', validators=[Optional()])
+    power_wp = IntegerField('Potência (Wp)', validators=[Optional()]) 
     warranty_years = IntegerField('Garantia (Anos)', validators=[Optional()])
+    
+    # --- CAMPO DE IMAGEM ---
+    image = FileField('Imagem do Produto', validators=[
+        Optional(),
+        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Apenas arquivos de imagem são permitidos!')
+    ])
+    
     submit = SubmitField('Salvar Produto')

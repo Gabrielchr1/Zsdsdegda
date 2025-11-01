@@ -294,61 +294,6 @@ document.addEventListener("DOMContentLoaded", function() {
     } // Fim do if(proposalCreationForm)
 
 
-    // --- FUNCIONALIDADE DE ADICIONAR CONCESSIONARIA (MODAL) ---
-    const concessionariaModalElement = document.getElementById('addConcessionariaModal');
-    if (concessionariaModalElement) {
-        const concessionariaModal = new bootstrap.Modal(concessionariaModalElement);
-        const concessionariaForm = document.getElementById('addConcessionariaForm');
-
-        if (concessionariaForm) {
-            concessionariaForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(concessionariaForm);
-                const formAction = concessionariaForm.getAttribute('action');
-
-                fetch(formAction, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { // Adiciona header para indicar requisição AJAX, útil no Flask
-                       'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                     if (!response.ok) {
-                           throw new Error(`Erro HTTP: ${response.status}`);
-                        }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // O select no proposal_form.html DEVE ter o id 'concessionaria'
-                        const selectConcessionaria = document.getElementById('concessionaria');
-                        if (selectConcessionaria) {
-                            // Cria a nova opção
-                            const newOption = new Option(data.name, data.id);
-                            selectConcessionaria.appendChild(newOption);
-                            // Seleciona a opção recém-adicionada
-                            newOption.selected = true;
-                            // Dispara um evento change se necessário (caso haja JS ouvindo mudanças)
-                            selectConcessionaria.dispatchEvent(new Event('change'));
-                        } else {
-                             console.warn("Select de concessionária com id='concessionaria' não encontrado.");
-                        }
-                        concessionariaModal.hide();
-                        concessionariaForm.reset();
-                    } else {
-                        // Mostra os erros de validação do formulário
-                        alert('Erro ao salvar concessionária: ' + JSON.stringify(data.errors));
-                        console.error('Erros de validação (Concessionária):', data.errors);
-                    }
-                })
-                .catch(error => {
-                     console.error('Erro no fetch (Concessionária):', error);
-                     alert('Ocorreu um erro de rede ou servidor ao adicionar a concessionária.');
-                });
-            });
-        }
-    }
 
 
     // --- LÓGICA DE DIMENSIONAMENTO AUTOMÁTICO (REMOVIDA) ---

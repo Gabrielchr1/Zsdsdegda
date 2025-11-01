@@ -12,6 +12,7 @@ from urllib.parse import urlsplit  # <-- LINHA CORRIGIDA
 from datetime import datetime, timedelta
 from geopy.geocoders import Nominatim
 from weasyprint import HTML
+from werkzeug.utils import secure_filename
 import requests
 import math
 from app import db
@@ -21,7 +22,7 @@ bp = Blueprint('main', __name__)
 
 
 
-# FUNÇÃO AUXILIAR PARA EMBUTIR IMAGENS
+# FUNÇÃO AUXILIAR PARA EMBUTIR IMAGENs
 def embed_image_b64(file_path):
     """Lê um arquivo de imagem e retorna uma string Data URI em Base64."""
     try:
@@ -180,6 +181,75 @@ def add_client():
         return redirect(url_for('main.clients'))
     return render_template('admin/client_form.html', title="Adicionar Cliente", form=form)
 
+
+
+
+@bp.route('/register-lead', methods=['POST'])
+def register_lead():
+    """
+    Endpoint público para capturar leads do simulador do site.
+    Não requer login.
+    """
+    data = request.get_json()
+    
+    # Validação básica dos dados recebidos
+    if not data or not data.get('email') or not data.get('nome'):
+        return jsonify({"error": "Dados insuficientes"}), 400
+
+    try:
+        # 1. Tenta encontrar um cliente pelo email ou telefone para evitar duplicatas
+        existing_client = Client.query.filter(
+            (Client.email == data.get('email')) | (Client.phone == data.get('telefone'))
+        ).first()
+
+        if existing_client:
+            # Se já existir, não faz nada, apenas retorna sucesso.
+            # (ou você poderia atualizar os dados dele se quisesse)
+            return jsonify({"success": True, "message": "Lead já existente"}), 200
+
+        # 2. Mapeia os dados do formulário JS para o seu modelo 'Client'
+        new_lead = Client(
+            name=data.get('nome'),
+            email=data.get('email'),
+            phone=data.get('telefone'),
+            city=data.get('cidade'),
+            state=data.get('estado'),
+            client_type=data.get('tipo_sistema'),
+            
+            # Usando o campo 'fantasy_name' para guardar o valor do gasto (já que não temos um campo 'notes')
+            # Isso aparecerá no seu admin e dará contexto ao vendedor!
+            fantasy_name=f"Lead do Site - Gasto R$ {data.get('gasto_luz', 'N/A')}",
+            
+            # IMPORTANTE: Associar o lead a um usuário admin padrão (ex: ID 1)
+            # A sua rota add_client usa 'current_user.id', que não existe aqui.
+            # Assumimos que o admin principal (ou um usuário "Site") tem o ID 1.
+            # Se o campo user_id puder ser nulo (nullable=True), você pode omitir esta linha.
+            user_id=1 
+        )
+
+        db.session.add(new_lead)
+        db.session.commit()
+        
+        return jsonify({"success": True, "message": "Lead criado com sucesso"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        # É uma boa prática logar o erro real no seu servidor
+        print(f"Erro ao salvar lead do site: {e}") 
+        return jsonify({"error": "Erro interno do servidor"}), 500
+
+
+
+
+
+
+
+
+
+
+
+
+
 @bp.route('/admin/client/<int:client_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_client(client_id):
@@ -233,7 +303,7 @@ def add_proposal(client_id):
                 concessionaria_form_modal = ConcessionariaForm()
                 return render_template('admin/proposal_form.html', title="Nova Proposta", 
                                        form=form, client=client, item_form=item_form, 
-                                       concessionaria_form=concessionaria_form_modal)
+                                       concessionaria_form_modal=concessionaria_form_modal)
         except json.JSONDecodeError:
             flash('Erro ao processar os itens da proposta.', 'danger')
             return redirect(request.url) # Recarrega a página
@@ -258,7 +328,12 @@ def add_proposal(client_id):
                 # calc_total_investment += (qty * price) # REMOVIDO
 
                 # Se o item é um módulo, some sua potência para o total do sistema (DC)
-                if product.category == 'Módulo' and product.power_wp:
+                
+                # --- CORREÇÃO APLICADA AQUI ---
+                # A categoria correta é 'Módulo Fotovoltaico', não 'Módulo'
+                if product.category == 'Módulo Fotovoltaico' and product.power_wp:
+                # --- FIM DA CORREÇÃO ---
+                    
                     calc_system_power_wp += (product.power_wp * qty)
                     calc_panel_quantity += qty
                     # Assume um tipo de painel por proposta para salvar a potência individual
@@ -339,6 +414,15 @@ def add_proposal(client_id):
             avg_bill_brl=form.avg_bill_brl.data or None,
             solar_irradiance=form.solar_irradiance.data or None,
             total_investment=form.total_investment.data, # Valor manual do formulário
+            kwh_adjustment=form.kwh_adjustment.data or None,
+
+
+            # --- ADICIONE ESTAS LINHAS AQUI ---
+            credit_card_installments=form.credit_card_installments.data or None,
+            credit_card_interest_rate=form.credit_card_interest_rate.data or None,
+            financing_installments=form.financing_installments.data or None,
+            financing_interest_rate=form.financing_interest_rate.data or None,
+            # --- FIM DA ADIÇÃO ---
             
             # Relacionamentos
             client=client,
@@ -366,8 +450,8 @@ def add_proposal(client_id):
             # Precisa passar 'concessionaria_form' também no render_template
             concessionaria_form_modal = ConcessionariaForm()
             return render_template('admin/proposal_form.html', title="Nova Proposta", 
-                                   form=form, client=client, item_form=item_form, 
-                                   concessionaria_form=concessionaria_form_modal)
+                                  form=form, client=client, item_form=item_form, 
+                                  concessionaria_form_modal=concessionaria_form_modal)
 
 
         # --- 5. SALVAR OS ITENS DA PROPOSTA VINCULADOS (SEM PREÇO) ---
@@ -421,7 +505,7 @@ def add_proposal(client_id):
     concessionaria_form_modal = ConcessionariaForm()
     return render_template('admin/proposal_form.html', title="Nova Proposta", 
                            form=form, client=client, item_form=item_form, 
-                           concessionaria_form=concessionaria_form_modal)
+                           concessionaria_form_modal=concessionaria_form_modal)
 
 
 
@@ -693,6 +777,12 @@ def update_proposal_status(proposal_id):
 
 
 
+
+
+
+
+
+
 # --- ROTAS PARA O CATÁLOGO DE PRODUTOS ---
 @bp.route('/admin/products')
 @login_required
@@ -702,22 +792,68 @@ def products():
 
 
 
+
+
+
 @bp.route('/admin/product/add', methods=['GET', 'POST'])
 @login_required
 def add_product():
     form = ProductForm()
+    
+    # Adicionamos um print para ver se a validação falhou
+    if not form.validate_on_submit() and request.method == 'POST':
+        print("--- DEBUG: Formulário NÃO passou na validação ---")
+        print(form.errors)
+
     if form.validate_on_submit():
+        print("--- DEBUG: Formulário validado. Verificando arquivo... ---")
+        
+        image_filename_to_db = None 
+        
+        # --- DEBUG: Vamos ver o que está em form.image.data ---
+        print(f"--- DEBUG: form.image.data = {form.image.data} ---")
+
+        if form.image.data:
+            print("--- DEBUG: Arquivo encontrado! Processando upload... ---")
+            try:
+                file = form.image.data
+                original_filename = secure_filename(file.filename)
+                timestamp = str(int(datetime.utcnow().timestamp()))
+                unique_filename = timestamp + '_' + original_filename
+                
+                upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'products')
+                os.makedirs(upload_dir, exist_ok=True)
+                
+                file_path = os.path.join(upload_dir, unique_filename)
+                file.save(file_path)
+                
+                image_filename_to_db = os.path.join('uploads', 'products', unique_filename)
+                image_filename_to_db = image_filename_to_db.replace('\\', '/')
+                print(f"--- DEBUG: Arquivo salvo em: {image_filename_to_db} ---")
+
+            except Exception as e:
+                print(f"--- ERRO NO UPLOAD: {e} ---")
+                flash(f'Ocorreu um erro ao salvar a imagem: {e}', 'danger')
+
+        else:
+            print("--- DEBUG: Nenhum arquivo foi enviado (form.image.data está Nulo). ---")
+        
+        # --- FIM DA LÓGICA DE UPLOAD ---
+
         new_product = Product(
             name=form.name.data,
             category=form.category.data,
             manufacturer=form.manufacturer.data,
             power_wp=form.power_wp.data,
-            warranty_years=form.warranty_years.data
+            warranty_years=form.warranty_years.data,
+            image_url=image_filename_to_db  
         )
         db.session.add(new_product)
         db.session.commit()
+        print("--- DEBUG: Produto salvo no banco. Redirecionando... ---")
         flash('Produto adicionado ao catálogo com sucesso!', 'success')
         return redirect(url_for('main.products'))
+    
     return render_template('admin/product_form.html', title="Novo Produto", form=form)
 
 
@@ -809,6 +945,6 @@ def generate_pdf(proposal_id):
     })
 
 # Você precisará ter as funções de cálculo definidas em algum lugar, como:
-def calculate_advanced_financials(investment, savings):
+#def calculate_advanced_financials(investment, savings):
     # Lógica de exemplo
-    return {'irr': 0.25, 'npv': 50000, 'profit_in_25_years': 150000}
+    #return {'irr': 0.25, 'npv': 50000, 'profit_in_25_years': 150000}

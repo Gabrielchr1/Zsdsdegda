@@ -25,7 +25,14 @@
         <div class="card shadow-sm mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Resumo Técnico-Financeiro</h5>
-                <a href="#" class="btn btn-sm btn-outline-secondary" title="Editar Proposta"><i class="fas fa-edit"></i></a>
+                <!-- 
+                  CORREÇÃO DO ERRO: 
+                  Voltamos para href="#" para que a página carregue, 
+                  já que a rota 'main.edit_proposal' ainda não existe.
+                -->
+                <a href="#" class="btn btn-sm btn-outline-secondary" title="Editar Proposta (Em breve)">
+                    <i class="fas fa-edit"></i>
+                </a>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
@@ -68,7 +75,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% set old_monthly_bill = proposal.avg_bill_brl or ((proposal.avg_consumption_kwh or 0) * (proposal.kwh_price or 0)) %}
+                        {% set old_monthly_bill = proposal.avg_bill_brl or ((proposal.avg_consumption_kwh or 0) * (proposal.kwh_price or 0.95)) %}
                         {% set old_annual_bill = old_monthly_bill * 12 %}
                         {% set new_annual_bill = old_annual_bill - (proposal.estimated_savings_per_year or 0) %}
                         <tr>
@@ -91,6 +98,10 @@
 <div class="card shadow-sm mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Itens da Proposta</h5>
+        <!-- Botão para abrir o modal (Este funciona, pois a rota 'main.add_item' existe) -->
+        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addItemModal">
+            <i class="fas fa-plus"></i> Adicionar Item
+        </button>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -102,23 +113,69 @@
                         <th class="text-center">Potência</th>
                         <th class="text-center">Garantia</th>
                         <th class="text-center">Qtd.</th>
-                        <th></th> </tr>
+                        <th class="text-end">Ações</th> 
+                    </tr>
                 </thead>
                 <tbody>
                     {% for item in proposal.items %}
                     <tr>
                         <td><strong>{{ item.product.name }}</strong></td>
                         <td>{{ item.product.manufacturer or '-' }}</td>
-                        <td class="text-center">{{ item.product.power_wp or '-' }}{% if item.product.power_wp %} Wp{% endif %}</td>
+                        
+                        <!-- 
+                          MELHORIA APLICADA: 
+                          Lógica da potência que fizemos para o PDF, 
+                          agora aplicada aqui também.
+                        -->
+                        <td class="text-center">
+                            {% set power = item.product.power_wp %}
+                            
+                            {% if power and power > 0 %}
+                                
+                                {# Verifica todas as categorias de inversores #}
+                                {% if item.product.category in ['Inversor', 'Micro-Inversor', 'Híbrido'] %}
+                                    
+                                    {# Se for < 1kW (ex: Micro-Inversor 600W), mostra decimal #}
+                                    {% if power < 1000 %}
+                                        <strong>{{ "%.1f"|format(power / 1000) }}K</strong>
+                                    
+                                    {# Se for >= 1kW (ex: Inversor 5500W), arredonda para baixo #}
+                                    {% else %}
+                                        <strong>{{ (power / 1000)|round(0, 'floor')|int }}K</strong>
+                                    {% endif %}
+                                    
+                                {# Categoria Exata: 'Módulo Fotovoltaico' #}
+                                {% elif item.product.category == 'Módulo Fotovoltaico' %}
+                                    {{ power|int }}W
+                                    
+                                {% else %}
+                                    {# Fallback para qualquer outro item (Estrutura, etc.) #}
+                                    {{ power|int }} Wp
+                                {% endif %}
+                                
+                            {% else %}
+                                {# Se não tiver potência cadastrada (None, 0 ou vazio) #}
+                                -
+                            {% endif %}
+                        </td>
+                        <!-- === FIM DA LÓGICA DE POTÊNCIA === -->
+
                         <td class="text-center">{{ item.product.warranty_years or '-' }}{% if item.product.warranty_years %} anos{% endif %}</td>
                         <td class="text-center">{{ item.quantity }}</td>
                         <td class="text-end">
-                            <form action="{{ url_for('main.delete_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
+                            <!-- 
+                              CORREÇÃO DE FUNCIONALIDADE: 
+                              O botão de submit estava faltando dentro do formulário.
+                            -->
+                            <form action="{{ url_for('main.delete_item', item_id=item.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este item?');" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir Item">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </form>
                         </td>
                     </tr>
                     {% else %}
-                     <tr><td colspan="6" class="text-center text-muted p-4">Nenhum item adicionado a esta proposta.</td></tr>
+                       <tr><td colspan="6" class="text-center text-muted p-4">Nenhum item adicionado a esta proposta.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -126,6 +183,7 @@
     </div>
 </div>
 
+<!-- Modal para Adicionar Item -->
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

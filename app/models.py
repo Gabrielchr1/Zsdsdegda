@@ -82,6 +82,14 @@ class Proposal(db.Model):
     concessionaria_id = db.Column(db.Integer, db.ForeignKey('concessionaria.id'))
     concessionaria = db.relationship('Concessionaria')
 
+
+    # --- NOVOS CAMPOS DE PAGAMENTO ---
+    credit_card_installments = db.Column(db.Integer, nullable=True)
+    credit_card_interest_rate = db.Column(db.Float, nullable=True) # Armazena 14.0 para 14%
+    
+    financing_installments = db.Column(db.Integer, nullable=True)
+    financing_interest_rate = db.Column(db.Float, nullable=True) # Armazena 131.0 para 131%
+
     # Cálculos
     consumption_input_type = db.Column(db.String(10), default='kwh')
     avg_consumption_kwh = db.Column(db.Float)
@@ -92,6 +100,8 @@ class Proposal(db.Model):
     monthly_production_kwh = db.Column(db.JSON)
     payback_years = db.Column(db.Float)
 
+    kwh_adjustment = db.Column(db.Integer, nullable=True)
+
     # Relacionamentos
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -99,6 +109,11 @@ class Proposal(db.Model):
 
     def __repr__(self):
         return f'<Proposal {self.title}>'
+
+
+
+
+
 
 
 # -----------------------
@@ -121,6 +136,7 @@ class ProposalItem(db.Model):
         return f'<ProposalItem {self.product.name} x {self.quantity}>'
 
 
+
 # -----------------------
 # CLASSE DE PRODUTOS
 # -----------------------
@@ -131,9 +147,19 @@ class Product(db.Model):
     manufacturer = db.Column(db.String(100))
     power_wp = db.Column(db.Integer)
     warranty_years = db.Column(db.Integer)
+    
+    # --- CAMPO ADICIONADO ---
+    # Armazena o caminho *relativo* da imagem, ex: 'uploads/products/meu_painel.png'
+    image_url = db.Column(db.String(255), nullable=True) 
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+
+
+
+
+
 
 
 # -----------------------

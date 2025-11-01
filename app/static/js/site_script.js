@@ -52,13 +52,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    form.addEventListener('submit', (e) => {
+    // TORNAMOS A FUNÇÃO DO SUBMIT "ASYNC" PARA USAR AWAIT NO FETCH
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // --- Coleta de Dados (Já existente e NOVO) ---
+        const gastoLuz = parseFloat(document.getElementById('gasto-luz').value);
+        const tipoSistema = document.getElementById('tipo-sistema').value;
         const nome = document.getElementById('nome').value;
+        const telefone = document.getElementById('telefone').value;
+        const email = document.getElementById('email').value;
+        const estado = document.getElementById('estado').value;
+        const cidade = document.getElementById('cidade').value;
+        
         document.getElementById('resultado-nome').textContent = nome;
 
-        // --- Cálculos ---
-        const gastoLuz = parseFloat(document.getElementById('gasto-luz').value);
+        // ==============================================================
+        // --- ADICIONADO: ENVIO DO LEAD PARA O BACKEND (FLASK) ---
+        // ==============================================================
+        const leadData = {
+            gasto_luz: gastoLuz,
+            tipo_sistema: tipoSistema,
+            nome: nome,
+            telefone: telefone,
+            email: email,
+            estado: estado,
+            cidade: cidade
+        };
+
+        try {
+            const response = await fetch('/register-lead', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(leadData)
+            });
+
+            if (!response.ok) {
+                console.error('Falha ao enviar o lead para o backend.');
+            } else {
+                console.log('Lead registrado com sucesso no backend!');
+            }
+            
+        } catch (error) {
+            console.error('Erro de rede ao tentar registrar o lead:', error);
+        }
+        // ==============================================================
+        // --- FIM DA SEÇÃO ADICIONADA ---
+        // ==============================================================
+
+
+        // --- Cálculos (Seu código original, sem alterações) ---
         const custoKwh = 0.95, irradiacaoSolar = 5, eficienciaSistema = 0.85, potenciaPlaca = 550, custoInstalacaoPorWp = 3.80;
         const consumoMensalKwh = gastoLuz / custoKwh;
         const potenciaSistemaWp = ((consumoMensalKwh / 30) / (irradiacaoSolar * eficienciaSistema)) * 1000;
@@ -68,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tempoRetornoAnos = custoTotalSistema / economiaAnual;
         const novaConta = gastoLuz * 0.05;
 
-        // --- Exibição dos Resultados Numéricos ---
+        // --- Exibição dos Resultados Numéricos (Seu código original, sem alterações) ---
         document.getElementById('resultado-simulacao').innerHTML = `
             <div class="result-card">
                 <div class="result-card-icon"><i class="fas fa-percentage"></i></div>
@@ -91,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="result-card-info"><h3>Nº de Placas</h3><p>~ ${numeroPlacas}</p></div>
             </div>`;
         
-        // --- Chamada das Funções de Gráficos ---
+        // --- Chamada das Funções de Gráficos (Seu código original, sem alterações) ---
         createProfitChart(custoTotalSistema, economiaAnual);
         createEconomyChart(gastoLuz, novaConta);
         
@@ -150,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NOVA VERSÃO DA FUNÇÃO PARA O GRÁFICO DE "ONDAS"
+    // NOVA VERSÃO DA FUNÇÃO PARA O GRÁFIgCO DE "ONDAS"
     function createProfitChart(investment, annualSavings) {
         const ctx = document.getElementById('profitChart').getContext('2d');
         const totalYears = 15;

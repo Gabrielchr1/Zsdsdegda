@@ -57,10 +57,19 @@
                     {{ form.grid_type.label(class="form-label") }}
                     {{ form.grid_type(class="form-select") }}
                 </div>
+
+
                 <div class="col-md-4 mb-3">
                     {{ form.concessionaria.label(class="form-label") }}
-                    {{ form.concessionaria(class="form-select", id="concessionaria") }}
+                    <div class="input-group">
+                        {{ form.concessionaria(class="form-select", id="concessionaria") }}
+                        <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#addConcessionariaModal" title="Adicionar nova concessionária">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
+
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Irradiação Solar (Hsp)</label>
                     <div class="input-group">
@@ -70,6 +79,18 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- NOVA COLUNA 4 -->
+                <div class="col-md-3 mb-3">
+                    {{ form.kwh_adjustment.label(class="form-label") }}
+                    <div class="input-group">
+                        {{ form.kwh_adjustment(class="form-control") }}
+                        <span class="input-group-text">kWh</span>
+                    </div>
+                </div>
+
+
+
             </div>
 
             <hr class="form-section-divider">
@@ -97,30 +118,99 @@
                     </div>
                 </div>
             </div>
+
+
+
             <hr class="form-section-divider">
-            <h4 class="text-muted fw-light mb-3">Detalhes Financeiros e Observações</h4>
+            <h4 class="text-muted fw-light mb-3">Detalhes Financeiros e Pagamento</h4>
+
             <div class="row">
-                <div class="col-md-6 mb-3">
+                
+                <div class="col-md-4 mb-3">
                     {{ form.total_investment.label(class="form-label") }}
-                    <div class="input-group"><span class="input-group-text">R$</span>{{ form.total_investment(class="form-control", placeholder="Valor total do projeto") }}</div>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        {{ form.total_investment(class="form-control", placeholder="Valor total") }}
+                    </div>
                 </div>
+
+                <div class="col-md-4 mb-3">
+                    {{ form.credit_card_installments.label(class="form-label", text="Cartão de Crédito (Parcelas / Taxa)") }}
+                    <div class="input-group">
+                        {{ form.credit_card_installments(class="form-control", placeholder="Parcelas") }}
+                        <span class="input-group-text">x</span>
+                        {{ form.credit_card_interest_rate(class="form-control", placeholder="Taxa") }}
+                        <span class="input-group-text">%</span>
+                    </div>
                 </div>
-            <div class="mb-3">
+
+                <div class="col-md-4 mb-3">
+                    {{ form.financing_installments.label(class="form-label", text="Financiamento (Parcelas / Taxa)") }}
+                    <div class="input-group">
+                        {{ form.financing_installments(class="form-control", placeholder="Parcelas") }}
+                        <span class="input-group-text">x</span>
+                        {{ form.financing_interest_rate(class="form-control", placeholder="Taxa") }}
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+                
+            </div> <div class="mb-3">
                 {{ form.notes.label(class="form-label") }}
                 {{ form.notes(class="form-control", rows=3) }}
             </div>
 
             <hr class="form-section-divider">
+
+
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ url_for('main.clients') }}" class="btn btn-light">Cancelar</a>
                 {{ form.submit(class="btn btn-success") }}
             </div>
+
+            
+
         </form>
     </div>
 </div>
 
-<div class="modal fade" id="addConcessionariaModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="addConcessionariaModal" tabindex="-1" aria-labelledby="concessionariaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="concessionariaModalForm" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="concessionariaModalLabel">Adicionar Nova Concessionária</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div id="concessionaria-modal-alert" class="alert alert-danger d-none" role="alert"></div>
+
+                    {{ concessionaria_form_modal.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ concessionaria_form_modal.name.label(class="form-label") }}
+                        {{ concessionaria_form_modal.name(class="form-control", id="concessionaria_form_name") }}
+                        <div class="invalid-feedback" id="concessionaria_form_name_error"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ concessionaria_form_modal.fio_b_price.label(class="form-label") }}
+                        {{ concessionaria_form_modal.fio_b_price(class="form-control", id="concessionaria_form_fio_b", placeholder="Ex: 0.075") }}
+                         <div class="invalid-feedback" id="concessionaria_form_fio_b_error"></div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="saveConcessionariaBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -151,4 +241,118 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }} <script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- FUNCIONALIDADE DE ADICIONAR CONCESSIONARIA (MODAL) ---
+    const concessionariaModalElement = document.getElementById('addConcessionariaModal');
+        
+    if (concessionariaModalElement) {
+        const concessionariaModal = new bootstrap.Modal(concessionariaModalElement);
+        
+        const saveBtn = document.getElementById('saveConcessionariaBtn');
+        const concessionariaForm = document.getElementById('concessionariaModalForm');
+
+        // Elementos de feedback de erro do HTML
+        const modalAlert = document.getElementById('concessionaria-modal-alert');
+        const nameError = document.getElementById('concessionaria_form_name_error');
+        const fioBError = document.getElementById('concessionaria_form_fio_b_error');
+        const nameInput = document.getElementById('concessionaria_form_name');
+        const fioBInput = document.getElementById('concessionaria_form_fio_b');
+
+        if (saveBtn && concessionariaForm) {
+            
+            // Ouve o 'click' no BOTÃO, não o 'submit'
+            saveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // A URL é definida aqui, usando url_for
+                
+                const formAction = "{{ url_for('main.add_concessionaria') }}";
+
+ 
+                
+                const formData = new FormData(concessionariaForm);
+
+                // 1. Ativa o feedback de "loading"
+                saveBtn.disabled = true;
+                saveBtn.querySelector('.spinner-border').classList.remove('d-none');
+                
+                // 2. Limpa erros antigos
+                modalAlert.classList.add('d-none');
+                if (nameInput) nameInput.classList.remove('is-invalid');
+                if (fioBInput) fioBInput.classList.remove('is-invalid');
+                if (nameError) nameError.textContent = '';
+                if (fioBError) fioBError.textContent = '';
+
+                fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // --- SUCESSO ---
+                        const selectConcessionaria = document.getElementById('concessionaria');
+                        if (selectConcessionaria) {
+                            const newOption = new Option(data.name, data.id);
+                            selectConcessionaria.appendChild(newOption);
+                            newOption.selected = true; // Seleciona a nova
+                            selectConcessionaria.dispatchEvent(new Event('change'));
+                        }
+                        concessionariaModal.hide();
+                        concessionariaForm.reset();
+
+                    } else {
+                        // --- ERRO DE VALIDAÇÃO ---
+                        if (data.errors) {
+                            let generalErrors = [];
+                            for (const field in data.errors) {
+                                const errorMsg = data.errors[field][0]; 
+                                if (field === 'name' && nameInput && nameError) {
+                                    nameInput.classList.add('is-invalid');
+                                    nameError.textContent = errorMsg;
+                                } else if (field === 'fio_b_price' && fioBInput && fioBError) {
+                                    fioBInput.classList.add('is-invalid');
+                                    fioBError.textContent = errorMsg;
+                                } else if (field !== 'csrf_token') {
+                                    generalErrors.push(errorMsg);
+                                }
+                            }
+                            if (generalErrors.length > 0 && modalAlert) {
+                                modalAlert.textContent = generalErrors.join(' ');
+                                modalAlert.classList.remove('d-none');
+                            }
+                        } else {
+                           if(modalAlert) {
+                                modalAlert.textContent = 'Erro desconhecido ao salvar.';
+                                modalAlert.classList.remove('d-none');
+                           }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro no fetch (Concessionária):', error);
+                    if(modalAlert) {
+                        modalAlert.textContent = 'Ocorreu um erro de rede ou servidor.';
+                        modalAlert.classList.remove('d-none');
+                    }
+                })
+                .finally(() => {
+                    // 3. Desativa o feedback de "loading"
+                    saveBtn.disabled = false;
+                    saveBtn.querySelector('.spinner-border').classList.add('d-none');
+                });
+            });
+        }
+    }
+
+});
+</script>
 {% endblock %}

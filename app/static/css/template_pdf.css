@@ -261,6 +261,13 @@ p {
     margin-bottom: 1cm;
 }
 
+
+
+
+
+
+
+
 /* --- NOVO CSS PARA O RESUMO TÉCNICO --- */
 .technical-summary {
     display: flex;
@@ -494,4 +501,234 @@ p {
     flex-basis: auto; /* Tamanho automático */
     font-size: 32px; /* Ícones maiores */
     color: #adb5bd; /* Cinza mais claro */
+}
+
+
+
+
+
+
+/* * Card Pequeno (Potência) */
+.tech-item-small {
+    flex: 1;
+    display: flex; /* <-- Define o modo Flexbox */
+    flex-direction: column; /* <-- Empilha os itens verticalmente */
+    
+    /* AS DUAS LINHAS MÁGICAS: */
+    justify-content: center; /* <-- Centraliza verticalmente (no eixo da coluna) */
+    align-items: center; /* <-- Centraliza horizontalmente (no eixo cruzado) */
+     
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 8px;
+    text-align: center; /* (Bom para o texto, mas o align-items já resolve) */
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    }
+
+
+
+
+
+
+
+
+
+
+
+/* * Card Grande (Inversor) - Layout à prova de PDF (Versão Corrigida)
+ */
+ .tech-item-large {
+    flex: 2; /* Mantém a proporção de 2:1 com o card pequeno */
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 15px 20px;
+    box-sizing: border-box;
+    min-height: 150px; 
+    /* REMOVIDO: display: table e width: 100% (causa do erro) */
+}
+
+/* CHAVE: Os wrappers INTERNOS (ambos) agora são as tabelas */
+.tech-item-large .inverter-content-wrapper,
+.tech-item-large .fallback-container {
+    display: table;
+    width: 100%; /* A tabela interna ocupa 100% do card */
+    table-layout: fixed;
+    height: 100%; /* Opcional, mas ajuda no alinhamento vertical */
+}
+
+/* CÉLULA 2: IMAGEM (limpa, sem padding de layout) */
+.tech-item-large .image-container {
+    display: table-cell;
+    vertical-align: middle;
+    width: 160px; /* Largura da imagem */
+    height: 160px;
+    
+    text-align: center; /* <--- USE ISTO PARA CENTRAR A IMAGEM */
+    
+    /* REMOVA AS REGRAS DE FLEX DA CÉLULA */
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* overflow: hidden; */ /* (Isto pode ficar se a imagem for grande) */
+    /* flex-shrink: 0; */
+}
+
+
+
+.tech-item-large .image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+.tech-item-large .image-container .fas {
+    font-size: 3.5em; /* Ícone um pouco maior */
+    color: #ffffff;
+}
+
+/* Coluna de Informações (Célula da Tabela) */
+.tech-item-large .info-container {
+    display: table-cell;
+    vertical-align: middle; /* CORRIGE O TEXTO "EMBAIXO" */
+    padding-left: 30px; /* Espaçamento entre imagem e texto */
+    
+    /* REMOVIDO: display: flex (causa do erro) */
+}
+
+
+
+
+
+
+
+
+/* Estilos de texto (sem quebra de linha e com "...") */
+.tech-item-large .info-container .overlay-title {
+    font-size: 14px; /* ... (seu tamanho) ... */
+    
+    /* --- ADICIONE ESTAS 3 LINHAS --- */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+.tech-item-large .info-container span {
+    font-size: 14px; /* ... (seu tamanho) ... */
+
+    /* --- ADICIONE ESTAS 3 LINHAS --- */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+.tech-item-large .info-container strong {
+    font-size: 14px; /* ... (seu tamanho) ... */
+    
+    /* --- ADICIONE ESTAS 3 LINHAS --- */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+
+.tech-item-large .info-container .sub-items {
+    margin-top: 10px; font-size: 10px; color: var(--light-text);
+    text-align: left;
+
+}
+
+
+
+
+
+
+
+
+
+
+/* * Estilo do Fallback (agora 100% consistente com o de cima) */
+
+/* CÉLULA 2: ÍCONE (limpa, sem padding de layout) */
+.tech-item-large .fallback-container .image-placeholder {
+    display: table-cell;
+    vertical-align: middle;
+    width: 160px; 
+    height: 160px;
+    
+    text-align: center; /* <--- USE ISTO PARA CENTRAR O ÍCONE */
+    
+    /* REMOVA AS REGRAS DE FLEX DA CÉLULA */
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* flex-shrink: 0; */
+}
+
+
+/* * NOVAS CÉLULAS DE ESPAÇO (Layout Explícito)
+ */
+ .tech-item-large .spacer-cell-left {
+    display: table-cell;
+    vertical-align: middle;
+    width: 100px; /* <--- SUA MARGEM ESQUERDA */
+}
+
+/* CÉLULA 3: ESPAÇO CENTRAL */
+.tech-item-large .spacer-cell-middle {
+    display: table-cell;
+    vertical-align: middle;
+    
+    /* AUMENTE ESTE VALOR para mover o texto para a direita */
+    width: 1px; /* (Tente 80px, 100px, etc.) */
+}
+
+
+
+.tech-item-large .fallback-container .image-placeholder i {  
+    font-size: 3.5em;  
+    color: #ffffff;
+}
+
+/* Coluna do Texto (Célula da Tabela) */
+.tech-item-large .fallback-container .text-content {
+    display: table-cell;
+    vertical-align: middle;
+    padding-left: 0;
+    padding-right: 50px;
+}
+.tech-item-large .fallback-container span { font-size: 1.2em; display: block; margin-bottom: 2px; }
+.tech-item-large .fallback-container strong { font-size: 2.0em; display: block; color: var(--primary-color); }
+
+
+
+
+
+/* Estilo para o título da nova seção */
+.section-title {
+    font-size: 14px;
+    color: #8d8d8d;
+    font-weight: 600;
+    margin-top: 20px; /* Espaço acima */
+    margin-bottom: 10px; /* Espaço antes da tabela */
+    border-bottom: 1px solid #eee; /* Linha sutil */
+    padding-bottom: 4px;
+}
+
+/* Ajustes na tabela de pagamento */
+.payment-options-table th {
+    background-color: var(--dark-bg); /* Cabeçalho mais escuro */
+    color: #2e43ff;
+    font-size: 10px;
+}
+.payment-options-table td {
+    font-size: 0.85rem;
+    padding-top: 12px; /* Mais espaçamento vertical */
+    padding-bottom: 12px;
+}
+/* Destaca o valor à vista */
+.payment-options-table strong {
+    color: #8d8d8d;
+    font-weight: 600;
 }
