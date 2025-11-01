@@ -5,7 +5,6 @@ env/
 __pycache__/
 *.pyc
 instance/
-migrations/
 senhaadmin.txt
 rascunho.txt
 instance/
