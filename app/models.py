@@ -99,8 +99,8 @@ class Proposal(db.Model):
     system_power_kwp = db.Column(db.Float)
     monthly_production_kwh = db.Column(db.JSON)
     payback_years = db.Column(db.Float)
-
-    kwh_adjustment = db.Column(db.Integer, nullable=True)
+    energy_inflation = db.Column(db.Float, default=10.0) # Padrão 10% ao ano
+    kwh_adjustment = db.Column(db.Float, default=0.0)
 
     # Relacionamentos
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)

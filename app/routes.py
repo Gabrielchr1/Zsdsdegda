@@ -413,8 +413,9 @@ def add_proposal(client_id):
             avg_consumption_kwh=form.avg_consumption_kwh.data or None,
             avg_bill_brl=form.avg_bill_brl.data or None,
             solar_irradiance=form.solar_irradiance.data or None,
+            energy_inflation=form.energy_inflation.data,
             total_investment=form.total_investment.data, # Valor manual do formulário
-            kwh_adjustment=form.kwh_adjustment.data or None,
+            kwh_adjustment=form.kwh_adjustment.data,
 
 
             # --- ADICIONE ESTAS LINHAS AQUI ---
@@ -892,26 +893,44 @@ def delete_product(product_id):
 
 
 
-# --- ROTA DE GERAÇÃO DE PDF (VERSÃO FINAL E COMPLETA) ---
+# --- ROTA DE GERAÇÃO DE PDF ---
 @bp.route('/admin/proposal/<int:proposal_id>/generate-pdf')
 @login_required
 def generate_pdf(proposal_id):
     proposal = Proposal.query.get_or_404(proposal_id)
     
-    # --- Lógica de cálculo (permanece a mesma) ---
-    monthly_chart_b64 = "" # Desativado temporariamente para focar na capa
-    # Se você tiver a função, pode reativar:
+    # --- 1. PREPARAÇÃO DA TAXA DE INFLAÇÃO ENERGÉTICA ---
+    # Pega do banco ou usa 10% como padrão se estiver vazio
+    inflation_percentage = proposal.energy_inflation or 10.0 
+    # Converte para decimal para os cálculos matemáticos (ex: 10 virá 0.10)
+    inflation_decimal = inflation_percentage / 100.0
+
+    # --- Lógica de cálculo dos Gráficos ---
+    monthly_chart_b64 = "" # Desativado temporariamente
+    # Se você reativar, certifique-se de que a função existe em utils.py
     # monthly_chart_b64 = generate_monthly_production_chart(proposal.monthly_production_kwh)
     
-    financials = calculate_advanced_financials(proposal.total_investment, proposal.estimated_savings_per_year)
+    # --- 2. CÁLCULOS FINANCEIROS AVANÇADOS (VPL, TIR) ---
+    # Agora passamos a taxa de inflação personalizada do cliente
+    financials = calculate_advanced_financials(
+        proposal.total_investment, 
+        proposal.estimated_savings_per_year,
+        energy_inflation_rate=inflation_decimal # <-- Passando o valor dinâmico
+    )
     
+    # --- Cálculos de Conta de Luz ---
     old_monthly_bill = proposal.avg_bill_brl or ((proposal.avg_consumption_kwh or 0) * (proposal.kwh_price or 0))
     old_annual_bill = old_monthly_bill * 12
     new_annual_bill = old_annual_bill - (proposal.estimated_savings_per_year or 0)
     
     cumulative_cost_chart_b64 = "" # Desativado temporariamente
-    # Se você tiver a função, pode reativar:
-    # cumulative_cost_chart_b64 = generate_cumulative_cost_chart(proposal.total_investment, old_annual_bill, new_annual_bill)
+    # Se reativar, passe a inflação aqui também:
+    # cumulative_cost_chart_b64 = generate_cumulative_cost_chart(
+    #     proposal.total_investment, 
+    #     old_annual_bill, 
+    #     new_annual_bill,
+    #     energy_inflation_rate=inflation_decimal # <-- Passando o valor dinâmico
+    # )
 
     # --- INFORMAÇÕES E IMAGENS EMBUTIDAS PARA A CAPA ---
     logo_path = os.path.join(current_app.root_path, 'static', 'img', 'logo.png')
@@ -921,6 +940,9 @@ def generate_pdf(proposal_id):
         'name': 'Hyper Energia Solar',
         'cnpj': '35.982.820/0001-00',
         'phone': '(11) 91286-1403',
+        # Você pode adicionar dados do Engenheiro aqui se quiser que apareça na assinatura
+        'engineer_name': 'Eng. Responsável',
+        'engineer_crea': ' - ',
         'logo_b64': embed_image_b64(logo_path),
         'footer_image_b64': embed_image_b64(footer_image_path)
     }
@@ -934,10 +956,13 @@ def generate_pdf(proposal_id):
         financials=financials,
         old_annual_bill=old_annual_bill,
         new_annual_bill=new_annual_bill,
-        company_info=company_info
+        company_info=company_info,
+        # Passamos a taxa original (ex: 10.0) para exibir no texto do PDF
+        energy_inflation_rate=inflation_percentage 
     )
     
     # --- Geração do PDF ---
+    # O base_url é importante para carregar CSS externo se houver
     pdf = HTML(string=html_renderizado, base_url=request.url_root).write_pdf()
 
     return Response(pdf, mimetype='application/pdf', headers={

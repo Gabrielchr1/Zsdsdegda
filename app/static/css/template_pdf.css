@@ -732,3 +732,115 @@ p {
     color: #8d8d8d;
     font-weight: 600;
 }
+
+
+
+
+
+
+
+/* --- CSS para a Seção de Prazos (CORRIGIDO) --- */
+.deadlines-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha pelo topo para evitar esticamento */
+    background-color: var(--background-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px 20px; /* Reduzi levemente o padding lateral */
+    margin-top: 5px;
+    margin-bottom: 20px;
+    break-inside: avoid;
+}
+
+.deadline-item {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Força cada item a ocupar o mesmo espaço (33%) */
+    /* gap: 10px; REMOVIDO (pode falhar no PDF) */
+}
+
+/* Espaçamento manual para substituir o gap */
+.deadline-item i {
+    color: var(--primary-green);
+    font-size: 18px; /* Ícone um pouco maior */
+    width: 24px;
+    text-align: center;
+    margin-right: 10px; /* Adiciona espaço à direita do ícone */
+    flex-shrink: 0; /* Garante que o ícone não seja esmagado */
+}
+
+.deadline-text {
+    display: flex;
+    flex-direction: column;
+    /* line-height ajustado para evitar sobreposição vertical */
+    line-height: 1.4; 
+}
+
+.deadline-text span {
+    color: var(--light-text);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 8px; /* Fonte levemente menor para garantir que caiba */
+    letter-spacing: 0.5px;
+    margin-bottom: 2px; /* Espaço entre o título e o valor */
+    white-space: nowrap; /* Tenta evitar quebra de linha no título */
+}
+
+.deadline-text strong {
+    color: var(--dark-text);
+    font-size: 11px;
+    white-space: nowrap; /* Evita quebra de linha no valor (ex: "Até 10 dias") */
+}
+
+
+/* --- Tabela de Geração Horizontal --- */
+.generation-section {
+    margin-top: 20px;
+    break-inside: avoid;
+}
+
+.generation-section h3 {
+    font-size: 12px;
+    color: var(--light-text);
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.generation-horizontal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px; /* Fonte menor para caber 13 colunas (12 meses + total) */
+}
+
+.generation-horizontal-table th {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 6px 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-right: 1px solid rgba(255,255,255,0.2); /* Separador sutil */
+}
+
+.generation-horizontal-table td {
+    text-align: center;
+    padding: 8px 2px;
+    border: 1px solid var(--border-color);
+    background-color: #fdfdfe;
+    color: var(--dark-text);
+}
+
+/* Destaque para a coluna de Total */
+.generation-horizontal-table th.total-col,
+.generation-horizontal-table td.total-col {
+    background-color: #e9ecef; /* Cinza mais escuro */
+    color: var(--dark-text);
+    font-weight: 800;
+    border-left: 2px solid var(--border-color); /* Separação visual */
+}
+.generation-horizontal-table th.total-col {
+    background-color: #dee2e6;
+}

@@ -175,7 +175,7 @@
 
 
 
-        <!-- === FIM DA SEÇÃO MODIFICADA === --><!-- O card de 'Quantidade de Módulos' foi removido na última iteração --><h2>Detalhes do Kit Fotovoltaico</h2>
+        <h2>Detalhes do Kit Fotovoltaico</h2>
         <table class="items-table">
             <thead>
                 <tr>
@@ -222,6 +222,33 @@
             </tbody>
         </table>
 
+
+        <div class="deadlines-container">
+            <div class="deadline-item">
+                <i class="fas fa-truck-loading"></i>
+                <div class="deadline-text">
+                    <span>Entrega dos Materiais</span>
+                    <strong>Até 10 dias</strong>
+                </div>
+            </div>
+            
+            <div class="deadline-item">
+                <i class="fas fa-tools"></i>
+                <div class="deadline-text">
+                    <span>Início da Instalação</span>
+                    <strong>Até 10 dias</strong>
+                </div>
+            </div>
+        
+            <div class="deadline-item">
+                <i class="fas fa-clipboard-check"></i>
+                <div class="deadline-text">
+                    <span>Homologação</span>
+                    <strong>Até 45 dias úteis</strong>
+                </div>
+            </div>
+        </div>
+
         <h2>Detalhamento de Gastos e Economia</h2>
         <table class="savings-table">
             <thead>
@@ -250,6 +277,59 @@
             </div>
         {% endif %}
         
+
+        {% if proposal.monthly_production_kwh %}
+            <div class="generation-section">
+                <h3>Estimativa de Geração Mensal (kWh)</h3>
+                
+                <table class="generation-horizontal-table">
+                    <thead>
+                        <tr>
+                            {# Lista de meses #}
+                            {% set meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] %}
+                            
+                            {% for mes in meses %}
+                                <th>{{ mes }}</th>
+                            {% endfor %}
+                            <th class="total-col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set porcentagens = [20, 23, 6, -6, -24, -29, -27, -5, -4, 5, 16, 28] %}
+                        
+                        {% set ns = namespace(total_ajustado=0) %}
+        
+                        <tr>
+                            {# Loop de 0 a 11 #}
+                            {% for i in range(12) %}
+                                {# 1. Pega o valor original do banco #}
+                                {% set valor_original = proposal.monthly_production_kwh[i] or 0 %}
+                                
+                                {# 2. Pega a porcentagem correspondente ao mês #}
+                                {% set pct = porcentagens[i] %}
+                                
+                                {# 3. Calcula o valor com acréscimo/desconto #}
+                                {% set valor_final = valor_original + (valor_original * pct / 100) %}
+                                
+                                {# 4. Adiciona ao novo total anual #}
+                                {% set ns.total_ajustado = ns.total_ajustado + valor_final %}
+                                
+                                <td>{{ "%.0f"|format(valor_final) }}</td>
+                            {% endfor %}
+                            
+                            <td class="total-col">{{ "%.0f"|format(ns.total_ajustado) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                    <p style="font-size: 8px; color: #999; text-align: center; margin-top: 5px;">
+                        * Valores estimados considerando variações sazonais e perdas médias locais.
+                    </p>
+            </div>
+        {% endif %}
+
+
+
         <h2>Análise de Investimento a Longo Prazo</h2>
         <div class="explanation-box">
             <strong><i class="fas fa-chart-line"></i> Projeção com Inflação Energética:</strong> Nossos cálculos consideram um aumento médio anual na tarifa de energia (ex: {{ energy_inflation_rate | default(8) }}%). Isso demonstra como sua economia tende a crescer ao longo do tempo, tornando o investimento ainda mais vantajoso.
@@ -283,6 +363,41 @@
             </div>
         {% endif %}
 
+        <h2>Resumo da proposta</h2>
+        <div class="financial-kpis" style="margin-top: 30px; margin-bottom: 25px;">
+            
+            <div class="kpi-box">
+                <div class="icon"><i class="fas fa-piggy-bank"></i></div>
+                <div class="label">Economia Anual</div>
+                <div class="value savings">R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</div>
+            </div>
+        
+            <div class="kpi-box">
+                <div class="icon"><i class="fas fa-undo-alt"></i></div>
+                <div class="label">Payback</div>
+                <div class="value">{{ "%.1f"|format(proposal.payback_years or 0) }} anos</div>
+            </div>
+        
+            <div class="kpi-box">
+                <div class="icon"><i class="fas fa-bolt"></i></div>
+                <div class="label">Preço atual (kWh)</div>
+                <div class="value">R$ {{ "%.2f"|format(proposal.kwh_price or 0) | replace('.', ',') }}/kWh</div>
+            </div>
+        
+            <div class="kpi-box">
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+                <div class="label">Inflação Energética (ao ano)</div>
+                <div class="value">{{ proposal.energy_inflation or 0 }}%</div>
+            </div>
+        
+        </div>
+
+        <p style="font-size: 9px; color: var(--light-text); text-align: center; margin-top: 5px;">
+            Neste cálculo consideramos a cobrança do custo mínimo de disponibilidade - taxa mínina, 
+            sem os adicionais de bandeiras tarifárias, a alíquota dos impostos de ICMS sobre a TUSD na 
+            energia injetada e o custeio da iluminação pública..
+        </p>
+
         <h2>Sua Solução Completa: Serviços e Garantias</h2>
         <div class="dual-section">
             <div class="col">
@@ -304,36 +419,24 @@
                 </ul>
             </div>
         </div>
-        <h2>Resumo da proposta</h2>
-        <div class="financial-kpis" style="margin-top: 30px; margin-bottom: 25px;">
-            <div class="kpi-box">
-                <div class="icon"><i class="fas fa-piggy-bank"></i></div>
-                <div class="label">Economia Anual Estimada</div>
-                 <div class="value savings">R$ {{ "{:,.2f}".format(proposal.estimated_savings_per_year or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}</div>
-            </div>
-            <div class="kpi-box">
-                <div class="icon"><i class="fas fa-undo-alt"></i></div>
-                <div class="label">Retorno do Investimento (Payback)</div>
-                <div class="value">{{ "%.1f"|format(proposal.payback_years or 0) }} anos</div>
-            </div>
-        </div>
 
 
 
 
-        
+
+        <h2>Valor da Proposta</h2>
         <h3 class="section-title" style="margin-top: 25px;">Condições de Pagamento</h3>
 
         <table class="items-table payment-options-table">
             <thead>
                 <tr>
                     <th>Modalidade</th>
-                    <th class="text-center">Valor para Pagamento</th>
+                    <th class="text-center">Valor para Pagamento á vista</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>À Vista</strong><br><small>Pagamento único no fechamento do contrato.</small></td>
+                    <td><strong>Pagamento</strong><br><small>1° No ato da contratação, 2° Após a instalação, 3° Na conclusão do projeto.</small></td>
                     <td class="text-center" style="vertical-align: middle;">
                         <strong style="font-size: 1.2rem; color: #1b9b21;">
                             R$ {{ "{:,.2f}".format(proposal.total_investment or 0) | replace(',', 'X') | replace('.', ',') | replace('X', '.') }}

@@ -55,11 +55,10 @@ class ProposalForm(FlaskForm):
     financing_installments = IntegerField('Parcelas Financiamento', validators=[Optional()])
     financing_interest_rate = FloatField('Taxa Financiamento (%)', validators=[Optional()])
 
+    energy_inflation = FloatField('Aumento Anual da Tarifa (%)', default=10.0, validators=[DataRequired()])
 
-    kwh_adjustment = IntegerField('Ajuste Geração (kWh)', 
-                                  validators=[Optional()], 
-                                  default=0,
-                                  render_kw={'placeholder': 'Ex: 10 ou -10'})
+
+    kwh_adjustment = FloatField('Ajuste de Consumo (kWh)', default=0.0, validators=[Optional()])
 
 
 
